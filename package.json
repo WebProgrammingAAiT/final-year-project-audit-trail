@@ -1,0 +1,27 @@
+{
+  "name": "final-year-project-audit-trail",
+  "version": "1.0.0",
+  "description": "Audit trail for property administration module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WebProgrammingAAiT/final-year-project-audit-trail.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WebProgrammingAAiT/final-year-project-audit-trail/issues"
+  },
+  "homepage": "https://github.com/WebProgrammingAAiT/final-year-project-audit-trail#readme",
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.5",
+    "ethers": "^5.0.0",
+    "hardhat": "^2.9.3"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0"
+  }
+}
