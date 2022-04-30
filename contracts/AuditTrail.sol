@@ -1,22 +1,21 @@
-pragma solidity >=0.7.3;
+pragma solidity >=0.8.13;
+//pragma experimental ABIEncoderV2;
 
-contract AuditTrail {
+import "./TransactionFactory.sol";
 
-    event ReceivingTransaction(string dataHash);
-    event RequestingTransaction(string dataHash);
-    event TransferTransaction(string dataHash);
+contract AuditTrail is TransactionFactory {
 
 
-    function receivingTransactions(string memory dataHash) public {
-        string memory newTransaction = dataHash;
-        emit ReceivingTransaction(newTransaction);
+    function loadTransactions() public view returns (Transaction[] memory){
+
     }
-    function requestingTransactions(string memory dataHash) public {
-        string memory newTransaction = dataHash;
-        emit RequestingTransaction(newTransaction);
+
+    function validateTransactions(string[] memory transactionHash) public returns (bool) {
+        //somehow validate the loaded transaction after hashing to the given hashes. check existence? 
+        //or don't load, just check agains the mapping in factory.
     }
-    function transferTransactions(string memory dataHash) public {
-        string memory newTransaction = dataHash;
-        emit TransferTransaction(newTransaction);
-    }
+
+
+
+
 }
