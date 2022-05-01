@@ -8,7 +8,6 @@ contract TransactionFactory {
 //   using SafeMath32 for uint32;
 //   using SafeMath16 for uint16;
 
-// HAVE FOUR TYPES OF TRANSACTIONS, compile tomorrow.
 
     event NewTransaction(string id, string receiptNumber, User user, Department department, string source, uint requiredDate, uint returnedDate);
     event NewUser(string id, string username, string email, string password, string role);
@@ -130,15 +129,6 @@ contract TransactionFactory {
     //TO-DO define individual functions for all 4 kinds of transactions
     function createTransaction(string memory id, string memory receiptNumber, User memory user, Department memory department, 
         string memory source, uint requiredDate, uint returnedDate) public {
-        
-        // Transaction storage t = transactions[transactions.length - 1];
-        // ItemsOfInterest memory received;
-        // ItemsOfInterest memory requested;
-        // ItemsOfInterest memory returned;
-        // t.receivedItems.push(received);
-        // t.requestedItems.push(requested);
-        // t.returnedItems.push(returned);
-
         transactions.push(Transaction(id, receiptNumber, user, department, source, requiredDate, returnedDate));
        
         emit NewTransaction(id, receiptNumber, user, department, source, requiredDate, returnedDate);
