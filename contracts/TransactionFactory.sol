@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 
 pragma solidity >=0.8.13;
-pragma experimental ABIEncoderV2;
+//pragma experimental ABIEncoderV2;
+
 
 contract TransactionFactory {
-//   using safeMath for uint256;
-//   using SafeMath32 for uint32;
-//   using SafeMath16 for uint16;
-
 
     event NewReturningTransaction(string id, string receiptNumber, string user, string department, uint returnedDate, string[] returnedItems);
     event NewReceivingTransaction(string id, string receiptNumber, string user, string source, string[] receivedItems);
@@ -55,8 +52,6 @@ contract TransactionFactory {
     struct ItemsOfInterest {
         string status;
         ItemType itemtype;
-        // mapping(uint => Item) items;
-
         Item[] items;
         uint32 quantity;
         uint32 unitCost;
@@ -73,10 +68,6 @@ contract TransactionFactory {
         uint returnedDate;
         string requestingTransaction;
         string transferredItem;
-
-        mapping(uint => string) returnedItems;
-        mapping(uint => string) requestedItems;
-        mapping(uint => string) receivedItems;
     }
 
     Department[] public departments;
@@ -85,17 +76,17 @@ contract TransactionFactory {
     User[] public users;
     Subinventory[] public subinventories;
 
-    mapping(string => ItemsOfInterest) list;
+    mapping(uint => ItemsOfInterest) list;
+    uint32 itemsSize = 0;
+    mapping(uint32 => string) itemsToTransactions;
     mapping(uint => Transaction) transactions;
     uint32 transactionSize = 0;
+
     Transaction[] public transactionsArray; // when to use
-    
-    string[] public dataHashes; 
-    mapping (bytes32 => Transaction) hashToTransaction;
 
     function createUsers( string memory id, string memory username, string memory email, string memory role) public {
         users.push(User(id, username, email, role));
-        emit NewUser(id, username, email, role);
+        // emit NewUser(id, username, email, role);
     }
     function updateRole(string memory username, string memory newRole) public {
         string memory oldRole;
@@ -105,16 +96,16 @@ contract TransactionFactory {
                 users[i].role = newRole;
             }
         }
-        emit UpdateRole(username, oldRole, newRole);
+        // emit UpdateRole(username, oldRole, newRole);
     }
-    function changePassword(string memory username) public {
+    function changePassword(string memory username) public view returns (string memory) {
         string memory message;
         for (uint i =0; i<users.length ; i++){
             if (keccak256(abi.encodePacked(users[i].username)) == keccak256(abi.encodePacked(username))) {
                 message = "Success";
             }
         }
-        emit UpdatePassword(username, message);
+        return message;
     }
 
     function createDepartment(string memory id, string memory name)  external {
@@ -127,19 +118,13 @@ contract TransactionFactory {
 
     function createItem(string memory id, Department memory department, ItemType memory itemType, uint32 price) public {
         items.push(Item(id, department, itemType, price));
-        emit NewItem(id, department, itemType, price);
     }
 
     function createSubinventory(string memory id, string memory name) public {
         subinventories.push(Subinventory(id, name));
-        emit NewSubinventory(id, name);
     }
 
-    function createItemsOfInterest(string memory status, ItemType memory itemType, Item[] memory item, uint32 quantity, uint32 unitCost) internal pure returns (ItemsOfInterest memory){
-        return ItemsOfInterest(status, itemType, item, quantity, unitCost); //to be called from interact.js prior to calling createTransaction
-    }
-
-    function returnedTransaction(string memory id, string memory receiptNumber, string memory user, string memory department, uint returnedDate, string[] memory itemsOfInterest) public {
+    function returnedTransaction(string memory id, string memory receiptNumber, string memory user, string memory department, uint returnedDate, ItemsOfInterest[] memory itemsOfInterest) public {
         uint transactionsID = transactionSize++;
         Transaction storage t = transactions[transactionsID];
         t.id = id;
@@ -147,25 +132,43 @@ contract TransactionFactory {
         t.user = user;
         t.department = department;
         t.returnedDate = returnedDate;
+        
         for(uint j=0; j<itemsOfInterest.length; j++){
-            t.returnedItems[j] = itemsOfInterest[j];
+            ItemsOfInterest storage i = list[itemsSize];
+            i.status = itemsOfInterest[j].status;
+            i.itemtype = itemsOfInterest[j].itemtype;
+            for (uint k=0; k<itemsOfInterest[j].items.length; k++){
+                i.items[k] = itemsOfInterest[j].items[k];
+            }
+            i.quantity = itemsOfInterest[j].quantity;
+            i.unitCost = itemsOfInterest[j].unitCost;
+            itemsToTransactions[itemsSize] = t.id;
+            itemsSize++;
         }
-        emit NewReturningTransaction(t.id, t.receiptNumber, t.user, t.department, t.returnedDate, itemsOfInterest);
     }
-    function receivedTransaction(string memory id, string memory receiptNumber, string memory user, string memory source,  string[] memory itemsOfInterest) public {
+    function receivedTransaction(string memory id, string memory receiptNumber, string memory user, string memory source,  ItemsOfInterest[] memory itemsOfInterest) public {
         uint transactionsID = transactionSize++;
         Transaction storage t = transactions[transactionsID];
         t.id = id;
         t.receiptNumber = receiptNumber;
         t.user = user;
         t.source = source;
+       
         for(uint j=0; j<itemsOfInterest.length; j++){
-            t.receivedItems[j] = itemsOfInterest[j];
+            ItemsOfInterest storage i = list[itemsSize];
+            i.status = itemsOfInterest[j].status;
+            i.itemtype = itemsOfInterest[j].itemtype;
+            for (uint k=0; k<itemsOfInterest[j].items.length; k++){
+                i.items[k] = itemsOfInterest[j].items[k];
+            }
+            i.quantity = itemsOfInterest[j].quantity;
+            i.unitCost = itemsOfInterest[j].unitCost;
+            itemsToTransactions[itemsSize] = t.id;
+            itemsSize++;
         }
-        emit NewReceivingTransaction(t.id, t.receiptNumber, t.user, t.source, itemsOfInterest);
     }
 
-    function requestingTransaction(string memory id, string memory receiptNumber, string memory user, string memory department, uint requiredDate, string[] memory itemsOfInterest) public {
+    function requestingTransaction(string memory id, string memory receiptNumber, string memory user, string memory department, uint requiredDate, ItemsOfInterest[] memory itemsOfInterest) public {
         uint transactionsID = transactionSize++;
         Transaction storage t = transactions[transactionsID];
         t.id = id;
@@ -173,13 +176,22 @@ contract TransactionFactory {
         t.user = user;
         t.department = department;
         t.requiredDate = requiredDate;
+      
         for(uint j=0; j<itemsOfInterest.length; j++){
-            t.requestedItems[j] = itemsOfInterest[j];
+            ItemsOfInterest storage i = list[itemsSize];
+            i.status = itemsOfInterest[j].status;
+            i.itemtype = itemsOfInterest[j].itemtype;
+            for (uint k=0; k<itemsOfInterest[j].items.length; k++){
+                i.items[k] = itemsOfInterest[j].items[k];
+            }
+            i.quantity = itemsOfInterest[j].quantity;
+            i.unitCost = itemsOfInterest[j].unitCost;
+            itemsToTransactions[itemsSize] = t.id;
+            itemsSize++;
         }
-        emit NewRequestingTransaction(t.id, t.receiptNumber, t.user, t.department, t.requiredDate, itemsOfInterest);        
     }
 
-    function transferTransaction(string memory id, string memory receiptNumber, string memory user, string memory department, string memory requestingTransactions, string memory itemsOfInterest) public {
+    function transferTransaction(string memory id, string memory receiptNumber, string memory user, string memory department, string memory requestingTransactions, ItemsOfInterest memory itemsOfInterest) public {
         uint transactionsID = transactionSize++;
         Transaction storage t = transactions[transactionsID];
         t.id = id;
@@ -187,11 +199,21 @@ contract TransactionFactory {
         t.user = user;
         t.department = department;
         t.requestingTransaction = requestingTransactions;
-        t.transferredItem = itemsOfInterest;
-        emit NewTransferredTransaction(t.id, t.receiptNumber, t.department, t.requestingTransaction, t.transferredItem);
+        
+        ItemsOfInterest storage i = list[itemsSize];
+        i.status = itemsOfInterest.status;
+        i.itemtype = itemsOfInterest.itemtype;
+        for (uint k=0; k<itemsOfInterest.items.length; k++){
+                i.items[k] = itemsOfInterest.items[k];
+        }
+        i.quantity = itemsOfInterest.quantity;
+        i.unitCost = itemsOfInterest.unitCost;
+        itemsToTransactions[itemsSize] = t.id;
+        itemsSize++;
     }   
 
 
-     
+     // TODO define getters for every public variable
+     // TODO define getters for the mappings 
 
 } 
