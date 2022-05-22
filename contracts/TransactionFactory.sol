@@ -62,17 +62,18 @@ contract TransactionFactory {
     Item[] public items;
     User[] public users;
     Subinventory[] public subinventories;
+    ItemsOfInterest[] public interest;
+    Item[] public itemsUnderInterest;
+    Transaction[] public transactionList;
 
-   
-    
-    mapping(uint32 => string) itemsToTransactions;
-    mapping(uint32 => uint32) itemsToLists;
+    mapping(uint => string) itemsToTransactions;
+    mapping(uint => uint) itemsToLists;
     mapping(uint => Transaction) transactions;
     mapping(uint => ItemsOfInterest) list;
     mapping(uint => Item) itemsList;
-    uint32 transactionSize = 0;
-    uint32 listSize = 0;
-    uint32 itemsSize = 0;
+    uint transactionSize = 0;
+    uint listSize = 0;
+    uint itemsSize = 0;
 
     function createUsers( string memory id, string memory username, string memory email, string memory role) public {
         users.push(User(id, username, email, role));
@@ -132,13 +133,17 @@ contract TransactionFactory {
                 item.itemType = newitems[j][k][2];
                 item.price = newitems[j][k][3];
                 itemsToLists[itemsSize] = listSize;
+                itemsUnderInterest.push(item);
                 itemsSize++;
             }
             i.quantity = itemsOfInterest[j][2];
             i.unitCost = itemsOfInterest[j][3];
             itemsToTransactions[listSize] = t.id;
+            interest.push(i);
             listSize++;
         }
+        transactionList.push(t);
+        
     }
     function receivedTransaction(string memory id, string memory receiptNumber, string memory user, string memory source,  string[][] memory itemsOfInterest, string[][][] memory newitems) public {
         uint transactionsID = transactionSize++;
@@ -159,13 +164,18 @@ contract TransactionFactory {
                 item.itemType = newitems[j][k][2];
                 item.price = newitems[j][k][3];
                 itemsToLists[itemsSize] = listSize;
+                itemsUnderInterest.push(item);
                 itemsSize++;
             }
             i.quantity = itemsOfInterest[j][2];
             i.unitCost = itemsOfInterest[j][3];
             itemsToTransactions[listSize] = t.id;
+            interest.push();
             listSize++;
         }
+
+    transactionList.push(t);
+
     }
 
     function requestingTransaction(string memory id, string memory receiptNumber, string memory user, string memory department, string memory requiredDate, string[][] memory itemsOfInterest, string[][][] memory newitems) public {
@@ -188,13 +198,16 @@ contract TransactionFactory {
                 item.itemType = newitems[j][k][2];
                 item.price = newitems[j][k][3];
                 itemsToLists[itemsSize] = listSize;
+                itemsUnderInterest.push(item);
                 itemsSize++;
             }
             i.quantity = itemsOfInterest[j][2];
             i.unitCost = itemsOfInterest[j][3];
             itemsToTransactions[listSize] = t.id;
+            interest.push();
             listSize++;
         }
+        transactionList.push(t);
     }
 
     function transferTransaction(string memory id, string memory receiptNumber, string memory user, string memory department, string memory requestingTransactions, string[][] memory itemsOfInterest, string[][][] memory newitems) public {
@@ -216,17 +229,50 @@ contract TransactionFactory {
                 item.department = newitems[j][k][1];
                 item.itemType = newitems[j][k][2];
                 item.price = newitems[j][k][3];
-                itemsToLists[itemsSize] = listSize;
+                itemsToLists[itemsSize] = listSize; //listSize as the index of the specific list in the mapping
+                itemsUnderInterest.push(item);
                 itemsSize++;
             }
             i.quantity = itemsOfInterest[j][2];
             i.unitCost = itemsOfInterest[j][3];
             itemsToTransactions[listSize] = t.id;
+            interest.push(i);
             listSize++;
         }
+        transactionList.push(t);
     }   
+   
+    function getDepartments() public view returns (Department[] memory depts){ //can i use this? or sth like this?
+        depts = departments; 
+    }
+    // TODO define getters for every public array like the one for department
 
-     // TODO define getters for every public variable
-     // TODO define getters for the mappings 
+    function getInterest() public view returns(ItemsOfInterest[] memory newItemsList) {
+        newItemsList = interest;
+    }
+    function getItems() public view returns (Item[] memory newItems) {
+        newItems = itemsUnderInterest;
+    }
+
+    function getItemsWithInterest() public view returns(uint[] memory itemsWithInterest){
+        uint[] memory return_variables = new uint[](itemsSize);
+        for (uint k=0; k<itemsSize; k++){
+            return_variables[k] = itemsToLists[k];
+        }
+        itemsWithInterest = return_variables;
+    }
+
+    function getInterestWithTransactions() public view returns(string[] memory interestWithTransactions){
+        string[] memory return_variables = new string[](listSize);
+        for (uint k=0; k<listSize; k++){
+            return_variables[k] = itemsToTransactions[k];
+        }
+        interestWithTransactions = return_variables;
+    }
+
+    function getTransactions() public view returns (Transaction[] memory transaction){
+        transaction = transactionList;
+    }
+
 
 } 
