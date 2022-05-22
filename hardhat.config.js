@@ -7,10 +7,20 @@
  const { API_URL, PRIVATE_KEY } = process.env
  
  module.exports = {
-  solidity: "0.8.13",
-  defaultNetwork: "rinkeby",
+  // defaultNetwork: "rinkeby",
+  solidity: {
+    version: "0.8.13",
+    settings: {
+      optimizer: {
+      enabled: true,
+      runs: 200
+      }
+    }
+  },
   networks: {
     hardhat: {
+      chainId: 1337,
+      // allowUnlimitedContractSize: true
     },
     rinkeby: {
       url: API_URL, 
