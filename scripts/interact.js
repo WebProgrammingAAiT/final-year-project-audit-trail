@@ -40,8 +40,10 @@ async function main() {
     // createRequestTransaction('id', 'recno', 'user', 'dpt', 'date', itemsOfInterest, items, 'tid', 'datahash');
     // createTransferTransaction('id', 'receiptNumber', 'user', 'dpt', 'reqtrans', itemsOfInterest, items, 'tid', 'datahash');
     // getDepts();
-    transact = await getTransactions();
-    console.log(transact);
+
+
+    // transact = await getTransactions();
+    // console.log(transact);
 
 
 
@@ -173,7 +175,6 @@ async function createTransferTransaction(id, receiptNumber, user, department, re
 
 async function getTransactions() {
     const auditTrailContract = await getContract();
-;
 
     const lmapping = await auditTrailContract.getInterestWithTransactions();
     const imapping = await auditTrailContract.getItemsWithInterest();
@@ -181,29 +182,35 @@ async function getTransactions() {
     const items = await auditTrailContract.getItems();
     const lists = await auditTrailContract.getInterest();
     const transactions = await auditTrailContract.getTransactions();
+    
+    // console.log(lists);
 
     for(i=0; i<transactions.length; i++){
         // console.log(transactions[i].id);
         var transactedList = [];
-        var transactedItems = {
-            item_status : "",
-            itemType: "",
-            unitCost: "",
-            quantity: "",
-            items: []
-        };
+
         for(j=0; j<lists.length;j++ ){
+            var transactedItems = {
+                item_status : "",
+                itemType: "",
+                unitCost: "",
+                quantity: "",
+                items: []
+            };
             if(lmapping[j]==transactions[i].id){
                 // console.log(j, lists[j].status, transactions[i].id);
-                transactedItems.item_status = lists[j].status,
-                transactedItems.itemType = lists[j].itemType,
-                transactedItems.quantity = lists[j].quantity,
-                transactedItems.unitCost = lists[j].unitCost
+                transactedItems.item_status = lists[j].status;
+                transactedItems.itemType = lists[j].itemtype;
+                transactedItems.quantity = lists[j].quantity;
+                transactedItems.unitCost = lists[j].unitCost;
+                transactedItems.items = [];
                 for(k=0;k<items.length;k++){
                     if(imapping[k]==j){
+                        // console.log(k, "for list", j, "with status:", lists[j].status);
                         transactedItems.items.push(items[k]);
                     }
                 }
+                // console.log(transactedItems);
                 transactedList.push(transactedItems);
             }
 
@@ -220,8 +227,10 @@ async function getTransactions() {
             "transferredItem": transactions[i].transferredItem,
             "transactedItems" : transactedList
         }
+        // console.log(transactedList);
     }
     // console.log(transactionsList);
+    
     return transactionsList;
 
 }
