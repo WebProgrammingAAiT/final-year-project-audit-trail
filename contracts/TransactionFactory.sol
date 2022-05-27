@@ -70,20 +70,26 @@ contract TransactionFactory {
         string quantity;
     }
 
-    TransferringTransaction[] public transferringTransactions;
-    RequestingTransaction[] public requestingTransactions;
-    ReturningTransaction[] public returnedTransactions;
-    ReceivingTransaction[] public receivingTransactions;
+    mapping(string => TransferringTransaction) transferring;
+    mapping(string => ReceivingTransaction) receiving;
+    mapping(string => RequestingTransaction) requesting;
+    mapping(string => ReturningTransaction) returning;
+
+    function createTransferringTransaction(string memory id, string memory requestingTransaction, string memory department, string memory receiptNumber, string memory user, string memory transactionType, string[] memory transferredItems, string[] memory newItems) public {
+        TransferredItems memory items = TransferredItems(transferredItems[0], transferredItems[1], newItems);
+        transferring[id] = TransferringTransaction(id, requestingTransaction, department, receiptNumber, user, transactionType, items);
+    }
+    function getTransferTransaction(string memory id) public view returns (TransferringTransaction memory transaction){
+        transaction = transferring[id];
+    }
 
     function createReceivingTransaction(string memory id, string memory source, string memory receiptNumber, string memory user, string memory transactionType, string[][] memory newReceivedItems, string[][] memory newItems) public {
-        uint ctr = receivingTransactions.length;
-        receivingTransactions.push();
-        ReceivingTransaction storage t = receivingTransactions[ctr];
+        ReceivingTransaction storage t = receiving[id];
         t.id = id;
         t.source = source;
         t.receiptNumber = receiptNumber;
         t.user = user;
-        t.transactionType = transactionType;
+        t.transactionType = transactionType;       
 
         for(uint i = 0; i<newReceivedItems.length; i++){
             t.receivedItems.push();
@@ -98,52 +104,13 @@ contract TransactionFactory {
             }
         }
     }
-    function getReceivingTransactions() public view returns (ReceivingTransaction[] memory transactions) {
-        transactions = receivingTransactions;
-    }
-    function getReceivingTransaction(string memory id) public view returns(ReceivingTransaction memory transaction, string memory message){
-        uint32 ctr = 0;
-        for (uint i=0; i<receivingTransactions.length; i++){
-            if (keccak256(abi.encodePacked(receivingTransactions[i].id)) == keccak256(abi.encodePacked(id))){
-                ctr++;
-                transaction = receivingTransactions[i];
-                message = "success";
-            }
-        }
-        if(ctr<1){
-            ReceivedItems[] memory emptyitems;
-            transaction = ReceivingTransaction('','','','','',emptyitems);
-            message = "failure";
-        }
-    }
 
-    function createTransferringTransaction(string memory id, string memory requestingTransaction, string memory department, string memory receiptNumber, string memory user, string memory transactionType, string[] memory transferredItems, string[] memory newItems) public {
-        TransferredItems memory trans_items = TransferredItems(transferredItems[0], transferredItems[1], newItems);
-        transferringTransactions.push(TransferringTransaction(id, requestingTransaction, department, receiptNumber, user, transactionType, trans_items));
-    }
-    function getTransferringTransactions() public view returns (TransferringTransaction[] memory transactions) {
-        transactions = transferringTransactions;
-    }
-    function getTransferTransaction(string memory id) public view returns (TransferringTransaction memory transaction, string memory message){
-        uint32 ctr = 0;
-        for (uint i=0; i<transferringTransactions.length; i++){
-            if (keccak256(abi.encodePacked(transferringTransactions[i].id)) == keccak256(abi.encodePacked(id))){
-                ctr++;
-                transaction = transferringTransactions[i];
-                message = "success";
-            }
-        }
-        if(ctr<1){
-            string[] memory emptyitems;
-            transaction = TransferringTransaction('','','','','','',TransferredItems('','',emptyitems));
-            message = "failure";
-        }
+    function getReceivingTransaction(string memory id) public view returns(ReceivingTransaction memory transaction){
+        transaction = receiving[id];
     }
 
     function createRequestingTransaction(string memory id, string memory department, string memory requiredDate, string memory receiptNumber, string memory user, string memory transactionType, string[][] memory newRequestedItems) public {
-        uint ctr = requestingTransactions.length;
-        requestingTransactions.push();
-        RequestingTransaction storage t = requestingTransactions[ctr];
+        RequestingTransaction storage t = requesting[id];
         t.id = id;
         t.department = department;
         t.requiredDate = requiredDate;
@@ -160,29 +127,13 @@ contract TransactionFactory {
             t.requestedItems[i].quantity = it.quantity;
         }
     }
-    function getRequestingTransactions() public view returns (RequestingTransaction[] memory transactions) {
-        transactions = requestingTransactions;
-    }
-    function getRequestingTransaction(string memory id) public view returns (RequestingTransaction memory transaction, string memory message){
-        uint32 ctr = 0;
-        for (uint i=0; i<requestingTransactions.length; i++){
-            if (keccak256(abi.encodePacked(requestingTransactions[i].id)) == keccak256(abi.encodePacked(id))){
-                ctr++;
-                transaction = requestingTransactions[i];
-                message = "success";
-            }
-        }
-        if(ctr<1){
-            RequestedItems[] memory emptyitems;
-            transaction = RequestingTransaction('','','','','','',emptyitems);
-            message = "failure";
-        }
+
+    function getRequestingTransaction(string memory id) public view returns (RequestingTransaction memory transaction){
+        transaction = requesting[id];
     }
 
     function createReturningTransaction(string memory id, string memory department, string memory returnedDate, string memory receiptNumber, string memory user, string memory transactionType, string[][]  memory newReturnedItems) public {
-        uint ctr = returnedTransactions.length;
-        returnedTransactions.push();
-        ReturningTransaction storage t = returnedTransactions[ctr];
+        ReturningTransaction storage t = returning[id];
         t.id = id;
         t.department = department;
         t.returnedDate = returnedDate;
@@ -200,22 +151,7 @@ contract TransactionFactory {
         }
     }
 
-    function getReturningTransactions() public view returns (ReturningTransaction[] memory transactions) {
-        transactions = returnedTransactions;
-    }
-    function getReturningTransaction(string memory id) public view returns (ReturningTransaction memory transaction, string memory message){
-        uint32 ctr = 0;
-        for (uint i=0; i<returnedTransactions.length; i++){
-            if (keccak256(abi.encodePacked(returnedTransactions[i].id)) == keccak256(abi.encodePacked(id))){
-                ctr++;
-                transaction = returnedTransactions[i];
-                message = "success";
-            }
-        }
-        if(ctr<1){
-            ReturnedItems[] memory emptyitems;
-            transaction = ReturningTransaction('','','','','','',emptyitems);
-            message = "failrure";
-        }
+    function getReturningTransaction(string memory id) public view returns (ReturningTransaction memory transaction){
+        transaction = returning[id];
     }
 } 

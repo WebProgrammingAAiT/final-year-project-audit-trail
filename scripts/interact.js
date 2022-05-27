@@ -53,10 +53,10 @@ async function testReceiving() {
     trailsUpdate.emit('StatusChanged', "Complete");
     console.log("completed");
 
-    const gets = await auditTrailContract.getReceivingTransactions();
-    console.log("\n\nGETS:: \n\n",gets);
-    console.log("\n\n\n RECEIVED",gets[0].receivedItems);
-    console.log("\n\n\n ITEMS",gets[0].receivedItems[1].items);
+    // const gets = await auditTrailContract.getReceivingTransactions();
+    // console.log("\n\nGETS:: \n\n",gets);
+    // console.log("\n\n\n RECEIVED",gets[0].receivedItems);
+    // console.log("\n\n\n ITEMS",gets[0].receivedItems[1].items);
 
 }
 async function testTransfer() {
@@ -72,10 +72,6 @@ async function testTransfer() {
     trailsUpdate.emit('StatusChanged', "Complete");
     console.log("completed");
 
-    const gets = await auditTrailContract.getTransferringTransactions();
-    console.log("\n\nGETS:: \n\n",gets);
-    console.log("\n\n\n ITEMS",gets[0].transferredItems);
-
 }
 async function testReturn() {
     const auditTrailContract = await getContract();
@@ -87,10 +83,6 @@ async function testReturn() {
     await create.wait();
     trailsUpdate.emit('StatusChanged', "Complete");
     console.log("completed");
-
-    const gets = await auditTrailContract.getReturningTransactions();
-    console.log("\n\nGETS:: \n\n",gets);
-    console.log("\n\n\n ITEMS",gets[1].returnedItems);
 }
 async function testRequest() {
     const auditTrailContract = await getContract();
@@ -103,24 +95,21 @@ async function testRequest() {
     trailsUpdate.emit('StatusChanged', "Complete");
     console.log("completed");
 
-    const gets = await auditTrailContract.getRequestingTransactions();
-    console.log("\n\nGETS:: \n\n",gets);
-    console.log("\n\n\n ITEMS",gets[1].requestedItems);
 }
 async function testGetters() {
     const auditTrailContract = await getContract();
 
     const transfer = await auditTrailContract.getTransferTransaction("id");
-    console.log(transfer);
+    console.log("TRANSFER: ", transfer);
 
     const request = await auditTrailContract.getRequestingTransaction("id");
-    console.log(request);
+    console.log("REQUEST: ", request);
 
-    const returned = await auditTrailContract.getReturningTransaction("id");
-    console.log(returned);
+    const returned = await auditTrailContract.getReturningTransaction("id2");
+    console.log("RETURNED: ", returned);
 
-    const received = await auditTrailContract.getReceivingTransaction('id2');
-    console.log(received);
+    const received = await auditTrailContract.getReceivingTransaction('id');
+    console.log("RECEIVED: ", received);
 }
 
 async function audit(transactions) {
