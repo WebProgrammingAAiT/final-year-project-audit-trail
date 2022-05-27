@@ -209,13 +209,13 @@ contract TransactionFactory {
             if (keccak256(abi.encodePacked(returnedTransactions[i].id)) == keccak256(abi.encodePacked(id))){
                 ctr++;
                 transaction = returnedTransactions[i];
-                message = "succ";
+                message = "success";
             }
         }
         if(ctr<1){
             ReturnedItems[] memory emptyitems;
             transaction = ReturningTransaction('','','','','','',emptyitems);
-            message = "sad";
+            message = "failrure";
         }
     }
 } 
