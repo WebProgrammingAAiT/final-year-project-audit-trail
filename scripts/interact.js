@@ -1,6 +1,8 @@
-const { API_URL, PRIVATE_KEY, API_KEY, CONTRACT_ADDRESS } = process.env;
+const { ALCHEMY_URL, PRIVATE_KEY, CONTRACT_ADDRESS } = process.env;
 
 const { ethers } = require("hardhat");
+const hash = require("object-hash");
+
 const contract = require("../artifacts/contracts/AuditTrail.sol/AuditTrail.json");
 const EventEmitter = require("events");
 
@@ -18,47 +20,137 @@ async function getContract() {
 }
 
 async function main() {
-  var itemsOfInterest = [
-    ["available", "type", "12", "12"],
-    ["gone", "type", "13", "13"],
-  ];
-  var items = [
-    [
-      ["id2", "dpt", "type", "12"],
-      ["id", "dpt", "type", "12"],
-    ],
-    [["id3", "src", "type", "45"]],
-  ];
+  try {
+    // var itemsOfInterest = [
+    //   ["available", "type", "12", "12"],
+    //   ["gone", "type", "13", "13"],
+    // ];
+    // var newItems = [
+    //   [
+    //     ["id2", "dpt", "type", "12"],
+    //     ["id", "dpt", "type", "12"],
+    //   ],
+    //   [["id3", "src", "type", "45"]],
+    // ];
 
-  // sample function calls below
+    // sample function calls below
 
-  // createReturnTransaction("first", "005", "Neba", "ITSC", "date", itemsOfInterest, items, "tid", "dataHash");
-  // createReturnTransaction("second", "005", "Neba", "ITSC", "date", itemsOfInterest, items, "tid", "dataHash");
-  // createReturnTransaction("third", "005", "Neba", "ITSC", "date", itemsOfInterest, items, "tid", "dataHash");
-  // createReturnTransaction("forth", "005", "Neba", "ITSC", "date", itemsOfInterest, items, "tid", "dataHash");
-  // createReturnTransaction("fifth", "005", "Neba", "ITSC", "date", itemsOfInterest, items, "tid", "dataHash");
+    // createReturnTransaction("first", "005", "Neba", "ITSC", "date", itemsOfInterest, items, "tid", "dataHash");
+    // createReturnTransaction("second", "005", "Neba", "ITSC", "date", itemsOfInterest, items, "tid", "dataHash");
+    // createReturnTransaction("third", "005", "Neba", "ITSC", "date", itemsOfInterest, items, "tid", "dataHash");
+    // createReturnTransaction("forth", "005", "Neba", "ITSC", "date", itemsOfInterest, items, "tid", "dataHash");
+    // createReturnTransaction("fifth", "005", "Neba", "ITSC", "date", itemsOfInterest, items, "tid", "dataHash");
 
-  // createDepartment("id1", "name1", "tid1", "dataHash1");
-  // createDepartment("id2", "name2", "tid2", "dataHash2");
-  // createDepartment("id3", "name3", "tid3", "dataHash3");
+    // createDepartment("id1", "name1", "tid1", "dataHash1");
+    // createDepartment("id2", "name2", "tid2", "dataHash2");
+    // createDepartment("id3", "name3", "tid3", "dataHash3");
 
-  // createReceiveTransaction('id', 'recno', 'user', 'src', itemsOfInterest, items, 'tid', 'datahash');
-  // createRequestTransaction('id', 'recno', 'user', 'dpt', 'date', itemsOfInterest, items, 'tid', 'datahash');
-  // createTransferTransaction('id', 'receiptNumber', 'user', 'dpt', 'reqtrans', itemsOfInterest, items, 'tid', 'datahash');
-  // getDepts();
+    // receiving
+    // let receivingTransaction = {
+    //   _id: "628ca362987fb5c971616bb2",
+    //   source: "11002",
+    //   receivedItems: [
+    //     {
+    //       itemType: "627119e949d48e67c9ca5cf7",
+    //       items: [
+    //         "628ca362987fb5c971616ba6",
+    //         "628ca362987fb5c971616ba8",
+    //         "628ca362987fb5c971616baa",
+    //         "628ca362987fb5c971616bac",
+    //         "628ca362987fb5c971616bae",
+    //         "628ca362987fb5c971616bb0",
+    //       ],
+    //       quantity: 6,
+    //       unitCost: 15000,
+    //       subinventory: "6252bc2a85093e0c778f0627",
+    //       _id: "628ca362987fb5c971616bb3",
+    //     },
+    //   ],
+    //   receiptNumber: "09583646612-781344612",
+    //   user: "6280b80f4aca065e37681b74",
+    //   type: "Receiving_Transaction",
+    //   createdAt: { $date: { $numberLong: "1653384034730" } },
+    //   updatedAt: { $date: { $numberLong: "1653384034730" } },
+    //   __v: 0,
+    // };
+    // let itemsOfInterest = [];
+    // let newItems = [];
+    // let id = receivingTransaction._id;
+    // let { receiptNumber, user, source } = receivingTransaction;
 
-  // transact = await getTransactions();
-  // console.log(transact);
+    // for (let i = 0; i < receivingTransaction.receivedItems.length; i++) {
+    //   let receivedItem = receivingTransaction.receivedItems[i];
+    //   let { itemType, subinventory, quantity, unitCost } = receivedItem;
+    //   itemsOfInterest.push(["", itemType, quantity.toString(), unitCost.toString()]);
+    //   let itemsOfCurrentIteration = [];
+    //   for (let j = 0; j < receivedItem.items.length; j++) {
+    //     let item = receivedItem.items[j];
+    //     itemsOfCurrentIteration.push([item, "", itemType, unitCost.toString()]);
+    //   }
+    //   newItems.push(itemsOfCurrentIteration);
+    // }
+    // console.log({ itemsOfInterest, newItems });
+    // createReceiveTransaction(id, receiptNumber, user, source, itemsOfInterest, newItems, "tid", "datahash");
+    // createRequestTransaction('id', 'recno', 'user', 'dpt', 'date', itemsOfInterest, items, 'tid', 'datahash');
+    // createTransferTransaction('id', 'receiptNumber', 'user', 'dpt', 'reqtrans', itemsOfInterest, items, 'tid', 'datahash');
 
-  trailsUpdate.on("NewTrail", () => {
-    console.log("New trail: ", trails.length, "\nStatus : Pending");
-    // TODO call audit with trail
-    console.log("With trail:", trails[trails.length - 1].id);
-  });
+    // returning
+    let returningTransaction = {
+      _id: "6283744afe37953da19d7eea",
+      department: "624c33a58a6223667774a9f8",
+      returnedDate: "2022-05-17",
+      returnedItems: [
+        {
+          item: "62557b6345d54c7c7118bdfa",
+          itemType: "6252c670f5992c9b958f2ce5",
+          status: "pending",
+          _id: "6283744afe37953da19d7eeb",
+        },
+        {
+          item: "62557b6345d54c7c7118bdf8",
+          itemType: "6252c670f5992c9b958f2ce5",
+          status: "pending",
+          _id: "62852552220d16fa3598bf0a",
+        },
+      ],
+      receiptNumber: "862295428975720061461",
+      user: "627e06ab1d35ceb41ec6ba79",
+      type: "Returning_Transaction",
+      createdAt: { $date: { $numberLong: "1652782154784" } },
+      updatedAt: { $date: { $numberLong: "1652893010619" } },
+      __v: 0,
+    };
+    let itemsOfInterest = [];
+    let newItems = [];
+    let id = returningTransaction._id;
+    let { receiptNumber, user, department, returnedDate } = returningTransaction;
 
-  trailsUpdate.on("StatusChanged", (status) => {
-    console.log("Status :", status);
-  });
+    for (let i = 0; i < returningTransaction.returnedItems.length; i++) {
+      let returnedItem = returningTransaction.returnedItems[i];
+      let { itemType, item, status } = returnedItem;
+      itemsOfInterest.push([status, itemType, "", ""]);
+      newItems.push([[item, department, itemType, ""]]);
+    }
+    // console.log({ itemsOfInterest, newItems });
+    // createReturnTransaction(id, receiptNumber, user, department, returnedDate, itemsOfInterest, newItems, "tid", "dataHash");
+    // getDepts();
+
+    transact = await getTransactions();
+    console.log(transact[6].transactedItems[1].items);
+
+    trailsUpdate.on("NewTrail", () => {
+      console.log("New trail: ", trails.length, "\nStatus : Pending");
+      // TODO call audit with trail
+      console.log("With trail:", trails[trails.length - 1].id);
+    });
+
+    trailsUpdate.on("StatusChanged", (status) => {
+      console.log("Status :", status);
+    });
+  } catch (error) {
+    console.log("in error");
+    console.log(error);
+  }
 }
 async function audit(transactions) {
   for (transaction in transactions) {
@@ -157,16 +249,20 @@ async function createReturnTransaction(
   trailsUpdate.emit("StatusChanged", "Complete");
 }
 async function createReceiveTransaction(id, receiptNumber, user, source, itemsofinterest, newitems, tid, dataHash) {
-  const auditTrailContract = await getContract();
+  try {
+    const auditTrailContract = await getContract();
 
-  const tx = await auditTrailContract.receivedTransaction(id, receiptNumber, user, source, itemsofinterest, newitems);
-  console.log(tx.hash);
-  hash = tx.hash;
-  trails.push({ id: tid, data: dataHash, hash: hash });
-  trailsUpdate.emit("NewTrail", trails[trails.length - 1]);
-  await tx.wait();
-  trailsUpdate.emit("StatusChanged", "Complete");
-  console.log("completed");
+    const tx = await auditTrailContract.receivedTransaction(id, receiptNumber, user, source, itemsofinterest, newitems);
+    console.log(tx.hash);
+    hash = tx.hash;
+    trails.push({ id: tid, data: dataHash, hash: hash });
+    trailsUpdate.emit("NewTrail", trails[trails.length - 1]);
+    await tx.wait();
+    trailsUpdate.emit("StatusChanged", "Complete");
+    console.log("completed");
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function createRequestTransaction(
@@ -292,4 +388,36 @@ async function getDepts() {
   return tx;
 }
 
-main();
+// main();
+
+const testHash = () => {
+  let returningTransaction = {
+    _id: "6283744afe37953da19d7eea",
+    department: "624c33a58a6223667774a9f8",
+    returnedDate: "2022-05-17",
+    returnedItems: [
+      {
+        item: "62557b6345d54c7c7118bdfa",
+        itemType: "6252c670f5992c9b958f2ce5",
+        status: "pending",
+        _id: "6283744afe37953da19d7eeb",
+      },
+      {
+        item: "62557b6345d54c7c7118bdf8",
+        itemType: "6252c670f5992c9b958f2ce5",
+        status: "pending",
+        _id: "62852552220d16fa3598bf0a",
+      },
+    ],
+    receiptNumber: "862295428975720061461",
+    user: "627e06ab1d35ceb41ec6ba79",
+    type: "Returning_Transaction",
+    createdAt: { $date: { $numberLong: "1652782154784" } },
+    updatedAt: { $date: { $numberLong: "1652893010619" } },
+    __v: 0,
+  };
+  let dataHash = hash(returningTransaction);
+  console.log({ dataHash });
+};
+
+testHash();

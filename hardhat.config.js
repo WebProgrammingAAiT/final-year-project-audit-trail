@@ -5,7 +5,7 @@ require("dotenv").config({ path: __dirname + "/.env" });
 require("@nomiclabs/hardhat-ethers");
 
 module.exports = {
-  defaultNetwork: "rinkeby",
+  // defaultNetwork: "rinkeby",
   solidity: {
     version: "0.8.13",
     settings: {
@@ -21,7 +21,7 @@ module.exports = {
       // allowUnlimitedContractSize: true
     },
     rinkeby: {
-      url: process.env.ALCHEMY_KEY,
+      url: process.env.ALCHEMY_URL,
       accounts: [process.env.PRIVATE_KEY],
     },
   },
