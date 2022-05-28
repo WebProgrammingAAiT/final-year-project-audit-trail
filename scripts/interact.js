@@ -56,34 +56,74 @@ async function validate(id, hash) {
 async function testReceiving() {
   try {
     const auditTrailContract = await getContract();
-
     let receivingTransaction = {
-      _id: "628ca362987fb5c971616bb2",
-      source: "11002",
+      _id: "62927455f12b702f6e8cae81",
+      source: "1001",
       receivedItems: [
         {
           itemType: "627119e949d48e67c9ca5cf7",
           items: [
-            "628ca362987fb5c971616ba6",
-            "628ca362987fb5c971616ba8",
-            "628ca362987fb5c971616baa",
-            "628ca362987fb5c971616bac",
-            "628ca362987fb5c971616bae",
-            "628ca362987fb5c971616bb0",
+            "62927448f12b702f6e8cae69",
+            "62927449f12b702f6e8cae6b",
+            "6292744af12b702f6e8cae6d",
+            "6292744af12b702f6e8cae6f",
+            "6292744bf12b702f6e8cae71",
+            "6292744cf12b702f6e8cae73",
           ],
           quantity: 6,
           unitCost: 15000,
-          subinventory: "6252bc2a85093e0c778f0627",
-          _id: "628ca362987fb5c971616bb3",
+          subinventory: "6252bd5e85093e0c778f062b",
+          _id: "62927455f12b702f6e8cae82",
+        },
+        {
+          itemType: "62711a6549d48e67c9ca5d00",
+          items: [
+            "62927454f12b702f6e8cae77",
+            "62927454f12b702f6e8cae79",
+            "62927454f12b702f6e8cae7b",
+            "62927455f12b702f6e8cae7d",
+            "62927455f12b702f6e8cae7f",
+          ],
+          quantity: 5,
+          unitCost: 20000,
+          subinventory: "6252bd5e85093e0c778f062b",
+          _id: "62927455f12b702f6e8cae83",
         },
       ],
-      receiptNumber: "09583646612-781344612",
-      user: "6280b80f4aca065e37681b74",
+      receiptNumber: "6-87799987144193--451",
+      user: "6252eab687ec4852535ca063",
       type: "Receiving_Transaction",
-      createdAt: { $date: { $numberLong: "1653384034730" } },
-      updatedAt: { $date: { $numberLong: "1653384034730" } },
+      createdAt: { $date: { $numberLong: "1653765205888" } },
+      updatedAt: { $date: { $numberLong: "1653765205888" } },
       __v: 0,
     };
+    // let receivingTransaction = {
+    //   _id: "628ca362987fb5c971616bb2",
+    //   source: "11002",
+    //   receivedItems: [
+    //     {
+    //       itemType: "627119e949d48e67c9ca5cf7",
+    //       items: [
+    //         "628ca362987fb5c971616ba6",
+    //         "628ca362987fb5c971616ba8",
+    //         "628ca362987fb5c971616baa",
+    //         "628ca362987fb5c971616bac",
+    //         "628ca362987fb5c971616bae",
+    //         "628ca362987fb5c971616bb0",
+    //       ],
+    //       quantity: 6,
+    //       unitCost: 15000,
+    //       subinventory: "6252bc2a85093e0c778f0627",
+    //       _id: "628ca362987fb5c971616bb3",
+    //     },
+    //   ],
+    //   receiptNumber: "09583646612-781344612",
+    //   user: "6280b80f4aca065e37681b74",
+    //   type: "Receiving_Transaction",
+    //   createdAt: { $date: { $numberLong: "1653384034730" } },
+    //   updatedAt: { $date: { $numberLong: "1653384034730" } },
+    //   __v: 0,
+    // };
 
     let itemsOfInterest = [];
     let newItems = [];
@@ -327,36 +367,70 @@ async function testGetters() {
 async function getReceivingTransaction() {
   const auditTrailContract = await getContract();
 
-  const received = await auditTrailContract.getReceivingTransaction("628ca362987fb5c971616bb2");
-  // console.log("RECEIVED: ", received);
-  let { id, source, receiptNumber, receivedItems } = received;
-  console.log({ id, source, receiptNumber, receivedItem1: receivedItems[0] });
+  const received = await auditTrailContract.getReceivingTransaction("62927455f12b702f6e8cae81");
+
+  let { id, source, user, receiptNumber, receivedItems: receivedItemsFromBlockchain } = received;
+  let receivedItems = [];
+  for (let i = 0; i < receivedItemsFromBlockchain.length; i++) {
+    let receivedItem = receivedItemsFromBlockchain[i];
+    let { id, itemType, quantity, unitCost, subinventory, items } = receivedItem;
+    receivedItems.push({ id, itemType, quantity, unitCost, subinventory, items });
+  }
+  let transaction = { id, source, user, receiptNumber, receivedItems };
+  console.log(transaction);
+  return transaction;
 }
-async function getRequestingTransaction(id) {
+async function getRequestingTransaction(_id) {
   const auditTrailContract = await getContract();
 
-  const request = await auditTrailContract.getRequestingTransaction(id);
-  console.log("REQUEST: ", request);
+  const request = await auditTrailContract.getRequestingTransaction(_id);
+  let { id, department, requiredDate, user, receiptNumber, requestedItems: requestedItemsFromBlockchain } = request;
+  let requestedItems = [];
+  for (let i = 0; i < requestedItemsFromBlockchain.length; i++) {
+    let requestedItem = requestedItemsFromBlockchain[i];
+    let { id, itemType, quantity, status } = requestedItem;
+    requestedItems.push({ id, itemType, quantity, status });
+  }
+  let transaction = { id, user, department, requiredDate, receiptNumber, requestedItems };
+  console.log(transaction);
+  return transaction;
 }
-async function getTransferringTransaction(id) {
+async function getTransferringTransaction(_id) {
   const auditTrailContract = await getContract();
 
-  const transfer = await auditTrailContract.getTransferTransaction(id);
-  console.log("TRANSFER: ", transfer);
+  const transfer = await auditTrailContract.getTransferTransaction(_id);
+  let { id, department, requestingTransaction, user, receiptNumber, transferredItems: transferredItemsFromBlockchain } = transfer;
+
+  let { itemType, quantity, items } = transferredItemsFromBlockchain;
+  let transferredItems = { itemType, quantity, items };
+
+  let transaction = { id, user, department, requestingTransaction, receiptNumber, transferredItems };
+  console.log(transaction);
+  return transaction;
 }
-async function getReturningTransaction(id) {
+
+async function getReturningTransaction(_id) {
   const auditTrailContract = await getContract();
 
-  const returned = await auditTrailContract.getReturningTransaction(id);
-  console.log("RETURNED: ", returned);
+  const returned = await auditTrailContract.getReturningTransaction(_id);
+  let { id, department, returnedDate, user, receiptNumber, returnedItems: returnedItemsFromBlockchain } = returned;
+  let returnedItems = [];
+  for (let i = 0; i < returnedItemsFromBlockchain.length; i++) {
+    let returnedItem = returnedItemsFromBlockchain[i];
+    let { id, item, itemType, status } = returnedItem;
+    returnedItems.push({ id, item, itemType, status });
+  }
+  let transaction = { id, department, user, returnedDate, receiptNumber, returnedItems };
+  console.log(transaction);
+  return transaction;
 }
 // main();
-testReceiving();
+// testReceiving();
 // getReceivingTransaction();
 // testRequest();
 // testTransfer();
 // testReturn();
 // getTransferringTransaction("628a0fedc47bdf1102df1ce8");
 // getReturningTransaction("6283744afe37953da19d7eeb");
-// getRequestingTransaction("62920d4246729540aaaec1c4");
+getRequestingTransaction("62920d4246729540aaaec1c4");
 // validate("628ca362987fb5c971616bb2", "dataHash");
