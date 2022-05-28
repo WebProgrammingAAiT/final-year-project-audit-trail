@@ -5,7 +5,7 @@ async function main() {
 
     const [owner, randomPerson] = await hre.ethers.getSigners();
     // compiling our smart contract
-    const transactionContractFactory = await hre.ethers.getContractFactory("AuditTrail");
+    const transactionContractFactory = await hre.ethers.getContractFactory("TransactionFactory");
     // deploying our smart contract after hardhat creates a local ethereum network
     const transactionContract = await transactionContractFactory.deploy();
     // probably waiting for the transaction to be mined
