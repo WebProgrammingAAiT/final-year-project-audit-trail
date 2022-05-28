@@ -21,7 +21,7 @@ module.exports = {
       // allowUnlimitedContractSize: true
     },
     rinkeby: {
-      url: process.env.ALCHEMY_KEY,
+      url: process.env.ALCHEMY_URL,
       accounts: [process.env.PRIVATE_KEY],
     },
   },
