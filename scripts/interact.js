@@ -1,7 +1,7 @@
 const { API_URL, PRIVATE_KEY, API_KEY, CONTRACT_ADDRESS } = process.env;
 
 const { ethers } = require("hardhat");
-const contract = require("../artifacts/contracts/AuditTrail.sol/AuditTrail.json");
+const contract = require("../artifacts/contracts/TransactionFactory.sol/TransactionFactory.json");
 const EventEmitter = require("events");
 
 // const alchemyProvider = new ethers.providers.AlchemyProvider(network="rinkeby", API_KEY);
@@ -16,39 +16,19 @@ async function getContract() {
   const auditTrailContract = new ethers.Contract(CONTRACT_ADDRESS, contract.abi, owner);
   return auditTrailContract;
 }
+// const [owner, randomPerson] = await hre.ethers.getSigners();
+// const auditTrailContract = new ethers.Contract(AUDIT_ADDRESS, contract.abi, owner);
+// return auditTrailContract;
 
 async function main() {
-  var itemsOfInterest = [
-    ["available", "type", "12", "12"],
-    ["gone", "type", "13", "13"],
-  ];
-  var items = [
-    [
-      ["id2", "dpt", "type", "12"],
-      ["id", "dpt", "type", "12"],
-    ],
-    [["id3", "src", "type", "45"]],
-  ];
-
   // sample function calls below
 
-  // createReturnTransaction("first", "005", "Neba", "ITSC", "date", itemsOfInterest, items, "tid", "dataHash");
-  // createReturnTransaction("second", "005", "Neba", "ITSC", "date", itemsOfInterest, items, "tid", "dataHash");
-  // createReturnTransaction("third", "005", "Neba", "ITSC", "date", itemsOfInterest, items, "tid", "dataHash");
-  // createReturnTransaction("forth", "005", "Neba", "ITSC", "date", itemsOfInterest, items, "tid", "dataHash");
-  // createReturnTransaction("fifth", "005", "Neba", "ITSC", "date", itemsOfInterest, items, "tid", "dataHash");
+  // testTransfer();
+  // testRequest();
+  // testReturn();
+  // testReceiving();
 
-  // createDepartment("id1", "name1", "tid1", "dataHash1");
-  // createDepartment("id2", "name2", "tid2", "dataHash2");
-  // createDepartment("id3", "name3", "tid3", "dataHash3");
-
-  // createReceiveTransaction('id', 'recno', 'user', 'src', itemsOfInterest, items, 'tid', 'datahash');
-  // createRequestTransaction('id', 'recno', 'user', 'dpt', 'date', itemsOfInterest, items, 'tid', 'datahash');
-  // createTransferTransaction('id', 'receiptNumber', 'user', 'dpt', 'reqtrans', itemsOfInterest, items, 'tid', 'datahash');
-  // getDepts();
-
-  // transact = await getTransactions();
-  // console.log(transact);
+  testGetters();
 
   trailsUpdate.on("NewTrail", () => {
     console.log("New trail: ", trails.length, "\nStatus : Pending");
@@ -60,236 +40,135 @@ async function main() {
     console.log("Status :", status);
   });
 }
-async function audit(transactions) {
-  for (transaction in transactions) {
-    const tx = await auditTrailContract.audit(transaction[tid], transaction[dataHash]);
-  }
-  console.log(tx);
-}
-async function validate(transactions) {
-  for (transaction in transactions) {
-    const tx = await auditTrailContract.validate(transaction[tid], transaction[dataHash]);
-  }
-  console.log(tx);
-}
-async function createUser(id, name, username, role, tid, dataHash) {
-  const tx = await auditTrailContract.createUsers(id, name, username, role);
-  console.log("hash :", tx.hash);
-  hash = tx.hash;
-  trails.push({ id: tid, data: dataHash, hash: hash });
-  trailsUpdate.emit("NewTrail");
-  await tx.wait();
-  trailsUpdate.emit("StatusChanged", "Complete");
-  console.log("completed");
-}
-async function updateRole(username, role, tid, dataHash) {
-  const tx = await auditTrailContract.updateRole(username, role);
-  console.log(tx.hash);
-  hash = tx.hash;
-  trails.push({ id: tid, data: dataHash, hash: hash });
-  trailsUpdate.emit("NewTrail");
-  await tx.wait();
-  trailsUpdate.emit("StatusChanged", "Complete");
-  console.log("completed");
+
+async function validate(id, hash) {
+  const auditTrailContract = await getContract();
+  const validate = await auditTrailContract.validateTransaction(id, hash);
+  console.log("validate: ", validate);
 }
 
-async function createDepartment(id, name, tid, dataHash) {
+async function testReceiving() {
   const auditTrailContract = await getContract();
 
-  const tx = await auditTrailContract.createDepartment(id, name);
-  console.log(tx.hash);
-  hash = tx.hash;
-  trails.push({ tid, dataHash, hash });
-  trails.push({ id: tid, data: dataHash, hash: hash });
-  trailsUpdate.emit("NewTrail");
-  await tx.wait();
-  trailsUpdate.emit("StatusChanged", "Complete");
-  console.log("completed");
-}
-async function createItem(id, dept, itemType, price, tid, dataHash) {
-  const tx = await auditTrailContract.createUsers(id, dept, itemType, price);
-  console.log(tx.hash);
-  hash = tx.hash;
-  trails.push({ id: tid, data: dataHash, hash: hash });
-  trailsUpdate.emit("NewTrail");
-  await tx.wait();
-  trailsUpdate.emit("StatusChanged", "Complete");
-  console.log("completed");
-}
-async function createSubinvenory(id, name, tid, dataHash) {
-  const tx = await auditTrailContract.createSubinvenory(id, name);
-  console.log(tx.hash);
-  hash = tx.hash;
-  trails.push({ id: tid, data: dataHash, hash: hash });
-  trailsUpdate.emit("NewTrail");
-  await tx.wait();
-  trailsUpdate.emit("StatusChanged", "Complete");
-  console.log("completed");
-}
-
-async function createReturnTransaction(
-  id,
-  receiptNumber,
-  user,
-  department,
-  returnedDate,
-  itemsofinterest,
-  newitems,
-  tid,
-  dataHash
-) {
-  const auditTrailContract = await getContract();
-  const tx = await auditTrailContract.returnedTransaction(
-    id,
-    receiptNumber,
-    user,
-    department,
-    returnedDate,
-    itemsofinterest,
+  const recitems = [
+    ["id", "type", "quantity", "unitcost", "subs"],
+    ["id2", "type2", "quantity2", "unitcost2", "subs2"],
+  ];
+  const newitems = [
+    ["1", "2", "3"],
+    ["4", "5"],
+  ];
+  const receive = await auditTrailContract.createReceivingTransaction(
+    "hash2",
+    "id",
+    "src",
+    "recno",
+    "user",
+    "ttype",
+    recitems,
     newitems
   );
-  console.log(tx.hash);
-
-  hash = tx.hash;
-  trails.push({ id: tid, data: dataHash, hash: hash });
+  console.log(receive.hash);
+  trails.push({ id: "tid", data: "dataHash", hash: receive.hash });
   trailsUpdate.emit("NewTrail");
-  await tx.wait();
-  trailsUpdate.emit("StatusChanged", "Complete");
-}
-async function createReceiveTransaction(id, receiptNumber, user, source, itemsofinterest, newitems, tid, dataHash) {
-  const auditTrailContract = await getContract();
-
-  const tx = await auditTrailContract.receivedTransaction(id, receiptNumber, user, source, itemsofinterest, newitems);
-  console.log(tx.hash);
-  hash = tx.hash;
-  trails.push({ id: tid, data: dataHash, hash: hash });
-  trailsUpdate.emit("NewTrail", trails[trails.length - 1]);
-  await tx.wait();
+  await receive.wait();
   trailsUpdate.emit("StatusChanged", "Complete");
   console.log("completed");
-}
 
-async function createRequestTransaction(
-  id,
-  receiptNumber,
-  user,
-  department,
-  requiredDate,
-  itemsofinterest,
-  newitems,
-  tid,
-  dataHash
-) {
-  const tx = await auditTrailContract.requestingTransaction(
-    id,
-    receiptNumber,
-    user,
-    department,
-    requiredDate,
-    itemsofinterest,
-    newitems
+  validate("id", "hash2");
+
+  // const gets = await auditTrailContract.getReceivingTransactions();
+  // console.log("\n\nGETS:: \n\n",gets);
+  // console.log("\n\n\n RECEIVED",gets[0].receivedItems);
+  // console.log("\n\n\n ITEMS",gets[0].receivedItems[1].items);
+}
+async function testTransfer() {
+  const auditTrailContract = await getContract();
+  const transitems = ["itemtype", "quantity"];
+  const newItems = ["it1", "it2"];
+  const create = await auditTrailContract.createTransferringTransaction(
+    "hash",
+    "id2",
+    "reqtrans",
+    "dept",
+    "recno",
+    "user",
+    "transferringTransaction",
+    transitems,
+    newItems
   );
-  console.log(tx.hash);
-  hash = tx.hash;
-  trails.push({ id: tid, data: dataHash, hash: hash });
+  console.log("create: ", create.hash);
+  trails.push({ id: "tid", data: "dataHash", hash: create.hash });
   trailsUpdate.emit("NewTrail");
-  await tx.wait();
+  await create.wait();
   trailsUpdate.emit("StatusChanged", "Complete");
-  console.log("completed");
+
+  validate("id2", "hash2");
 }
-async function createTransferTransaction(
-  id,
-  receiptNumber,
-  user,
-  department,
-  requestingTransaction,
-  itemsofinterest,
-  newitems,
-  tid,
-  dataHash
-) {
-  const tx = await auditTrailContract.transferTransaction(
-    id,
-    receiptNumber,
-    user,
-    department,
-    requestingTransaction,
-    itemsofinterest,
-    newitems
+async function testReturn() {
+  const auditTrailContract = await getContract();
+  const resitems = [
+    ["id3", "item3", "type3", "status3"],
+    ["id2", "item2", "type2", "status2"],
+    ["id", "item", "type", "status"],
+  ];
+  const create = await auditTrailContract.createReturningTransaction(
+    "hash2",
+    "id3",
+    "dept2",
+    "retdate2",
+    "recno2",
+    "user",
+    "type",
+    resitems
   );
-  console.log(tx.hash);
-  hash = tx.hash;
-  trails.push({ id: tid, data: dataHash, hash: hash });
+  console.log(create.hash);
+  trails.push({ id: "tid", data: "dataHash", hash: create.hash });
   trailsUpdate.emit("NewTrail");
-  await tx.wait();
+  await create.wait();
+  trailsUpdate.emit("StatusChanged", "Complete");
+
+  validate("id3", "hash2");
+}
+async function testRequest() {
+  const auditTrailContract = await getContract();
+  const resitems = [
+    ["id", "type", "status", "quantity"],
+    ["id", "type", "status", "quantity"],
+  ];
+  const create = await auditTrailContract.createRequestingTransaction(
+    "hash2",
+    "id4",
+    "dept",
+    "reqdate",
+    "recno",
+    "user",
+    "type",
+    resitems
+  );
+  console.log(create.hash);
+  trails.push({ id: "tid", data: "dataHash", hash: create.hash });
+  trailsUpdate.emit("NewTrail");
+  await create.wait();
   trailsUpdate.emit("StatusChanged", "Complete");
   console.log("completed");
-}
 
-async function getTransactions() {
+  validate("id4", "hash2");
+}
+async function testGetters() {
   const auditTrailContract = await getContract();
 
-  const lmapping = await auditTrailContract.getInterestWithTransactions();
-  const imapping = await auditTrailContract.getItemsWithInterest();
+  const received = await auditTrailContract.getReceivingTransaction("id");
+  console.log("RECEIVED: ", received);
 
-  const items = await auditTrailContract.getItems();
-  const lists = await auditTrailContract.getInterest();
-  const transactions = await auditTrailContract.getTransactions();
+  const transfer = await auditTrailContract.getTransferTransaction("id2");
+  console.log("TRANSFER: ", transfer);
 
-  // console.log(lists);
+  const returned = await auditTrailContract.getReturningTransaction("id3");
+  console.log("RETURNED: ", returned);
 
-  for (i = 0; i < transactions.length; i++) {
-    // console.log(transactions[i].id);
-    var transactedList = [];
-
-    for (j = 0; j < lists.length; j++) {
-      var transactedItems = {
-        item_status: "",
-        itemType: "",
-        unitCost: "",
-        quantity: "",
-        items: [],
-      };
-      if (lmapping[j] == transactions[i].id) {
-        // console.log(j, lists[j].status, transactions[i].id);
-        transactedItems.item_status = lists[j].status;
-        transactedItems.itemType = lists[j].itemtype;
-        transactedItems.quantity = lists[j].quantity;
-        transactedItems.unitCost = lists[j].unitCost;
-        transactedItems.items = [];
-        for (k = 0; k < items.length; k++) {
-          if (imapping[k] == j) {
-            // console.log(k, "for list", j, "with status:", lists[j].status);
-            transactedItems.items.push(items[k]);
-          }
-        }
-        // console.log(transactedItems);
-        transactedList.push(transactedItems);
-      }
-    }
-    transactionsList[i] = {
-      id: transactions[i].id,
-      receiptNumber: transactions[i].receiptNumber,
-      user: transactions[i].user,
-      department: transactions[i].department,
-      source: transactions[i].source,
-      requiredDate: transactions[i].requiredDate,
-      returnedDate: transactions[i].returnedDate,
-      requestingTransaction: transactions[i].requestingTransaction,
-      transferredItem: transactions[i].transferredItem,
-      transactedItems: transactedList,
-    };
-    // console.log(transactedList);
-  }
-  // console.log(transactionsList);
-
-  return transactionsList;
-}
-async function getDepts() {
-  const auditTrailContract = await getContract();
-  const tx = await auditTrailContract.getDepartments();
-  console.log(tx[0].id == "id2");
-  return tx;
+  const request = await auditTrailContract.getRequestingTransaction("id4");
+  console.log("REQUEST: ", request);
 }
 
 main();

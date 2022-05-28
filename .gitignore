@@ -4,3 +4,4 @@
 **/artifacts/
 **/cache/
 **/bin/
+contracts/AuditTrail.sol

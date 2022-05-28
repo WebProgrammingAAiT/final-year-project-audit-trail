@@ -3,276 +3,190 @@
 pragma solidity >=0.8.13;
 //pragma experimental ABIEncoderV2;
 
-
 contract TransactionFactory {
 
-    struct Item {
+    struct ReceivingTransaction {
         string id;
-        string department;
-        string itemType;
-        string price;
-        //Subinventory subinventory;
-    }
-
-    struct Department {
-        string id;
-        string name;
-    }
-
-    struct ItemType {
-        string id;
-        string name;
-        string itemCode;
-    }
-
-    struct Subinventory {
-        string id;
-        string name;
-    }
-
-    struct User {
-        string id;
-        string username;
-        string email;
-        string role;
-    }
-
-    struct ItemsOfInterest {
-        string status;
-        string itemtype;
-        string quantity;
-        string unitCost;
-    }
-
-    struct Transaction {
-        string id;
+        string source; 
         string receiptNumber;
         string user;
+        string transactionType;
+        ReceivedItems[] receivedItems;
+    }
+    struct ReceivedItems {
+        string id;
+        string itemType;
+        string quantity;
+        string unitCost;
+        string subinventory;
+        string[] items;
+    }
 
+    struct ReturningTransaction {
+        string id;
         string department;
-        string source;
-        string requiredDate;
         string returnedDate;
+        string receiptNumber;
+        string user;
+        string transactionType;
+        ReturnedItems[] returnedItems;
+    }
+    struct ReturnedItems {
+        string id;
+        string item;
+        string itemType;
+        string status;
+    }
+
+    struct TransferringTransaction {
+        string id;
         string requestingTransaction;
-        string transferredItem;
+        string department;
+        string receiptNumber;
+        string user;
+        string transactionType;
+        TransferredItems transferredItems;
+    }
+    struct TransferredItems {
+        string itemType;
+        string quantity;
+        string[] items;
     }
 
-    Department[] public departments;
-    ItemType[] public itemTypes;
-    Item[] public items;
-    User[] public users;
-    Subinventory[] public subinventories;
-    ItemsOfInterest[] public interest;
-    Item[] public itemsUnderInterest;
-    Transaction[] public transactionList;
-
-    mapping(uint => string) itemsToTransactions;
-    mapping(uint => uint) itemsToLists;
-    mapping(uint => Transaction) transactions;
-    mapping(uint => ItemsOfInterest) list;
-    mapping(uint => Item) itemsList;
-    uint transactionSize = 0;
-    uint listSize = 0;
-    uint itemsSize = 0;
-
-    function createUsers( string memory id, string memory username, string memory email, string memory role) public {
-        users.push(User(id, username, email, role));
+    struct RequestingTransaction {
+        string id; 
+        string department;
+        string requiredDate;
+        string receiptNumber;
+        string user;
+        string transactionType;
+        RequestedItems[] requestedItems;
     }
-    function updateRole(string memory username, string memory newRole) public {
-        string memory oldRole;
-        for (uint i =0; i<users.length ; i++){
-            if (keccak256(abi.encodePacked(users[i].username)) == keccak256(abi.encodePacked(username))) {
-                oldRole = users[i].role;
-                users[i].role = newRole;
-            }
+    struct RequestedItems {
+        string id;
+        string itemType;
+        string status;
+        string quantity;
+    }
+
+    mapping(string => TransferringTransaction) transferring;
+    mapping(string => ReceivingTransaction) receiving;
+    mapping(string => RequestingTransaction) requesting;
+    mapping(string => ReturningTransaction) returning;
+
+    event Audit(string transactionIdentifier, bytes32 dataHash);
+    event UsedIdentifier(string transactionIdentifier, string message);
+    mapping(string => bytes32) public dataHashes;
+    string[] public auditedTransactions; 
+
+    function auditTransaction(string memory transactionIdentifier, string memory hash) public {
+        bytes32 dataHash = stringToBytes32(hash);
+        if (dataHashes[transactionIdentifier] != 0) {
+            emit UsedIdentifier(transactionIdentifier, "A transaction can only be audited once");
+            return;
+        } 
+        dataHashes[transactionIdentifier] = dataHash;
+        auditedTransactions.push(transactionIdentifier);
+        emit Audit(transactionIdentifier, dataHash);
+        // require(dataHashes[transactionIdentifier] == 0, "A transaction can only be audited once");
+    }
+
+    function validateTransaction(string memory transactionIdentifier, string memory hash) public view returns (bool) {
+        bytes32 dataHash = stringToBytes32(hash);
+        return dataHashes[transactionIdentifier] == dataHash ?  true : false;
+    }
+
+    function stringToBytes32(string memory source) public pure returns (bytes32 result) {
+        bytes memory tempEmptyStringTest = bytes(source);
+        if (tempEmptyStringTest.length == 0) {
+            return 0x0;
+        }
+        assembly {
+            result := mload(add(source, 32))
         }
     }
-    function changePassword(string memory username) public view returns (string memory) {
-        string memory message;
-        for (uint i =0; i<users.length ; i++){
-            if (keccak256(abi.encodePacked(users[i].username)) == keccak256(abi.encodePacked(username))) {
-                message = "Success";
-            }
-        }
-        return message;
+
+    function createTransferringTransaction(string memory dataHash, string memory id, string memory requestingTransaction, string memory department, string memory receiptNumber, string memory user, string memory transactionType, string[] memory transferredItems, string[] memory newItems) public {
+        TransferredItems memory items = TransferredItems(transferredItems[0], transferredItems[1], newItems);
+        transferring[id] = TransferringTransaction(id, requestingTransaction, department, receiptNumber, user, transactionType, items);
+        auditTransaction(id, dataHash);
+    }
+    function getTransferTransaction(string memory id) public view returns (TransferringTransaction memory transaction){
+        transaction = transferring[id];
     }
 
-    function createDepartment(string memory id, string memory name)  external {
-        departments.push(Department(id,name));
-    }
-
-    function createItemType(string memory id, string memory name, string memory itemCode) external {
-        itemTypes.push(ItemType(id, name, itemCode));
-    }
-
-    function createItem(string memory id, string memory department, string memory itemType, string memory price) public {
-        items.push(Item(id, department, itemType, price));
-    }
-
-    function createSubinventory(string memory id, string memory name) public {
-        subinventories.push(Subinventory(id, name));
-    }
-
-    function returnedTransaction(string memory id, string memory receiptNumber, string memory user, string memory department, string memory returnedDate, string[][] memory itemsOfInterest, string[][][] memory newitems) public {
-        uint transactionsID = transactionSize++;
-        Transaction storage t = transactions[transactionsID];
+    function createReceivingTransaction(string memory dataHash, string memory id, string memory source, string memory receiptNumber, string memory user, string memory transactionType, string[][] memory newReceivedItems, string[][] memory newItems) public {
+        ReceivingTransaction storage t = receiving[id];
         t.id = id;
-        t.receiptNumber = receiptNumber;
-        t.user = user;
-        t.department = department;
-        t.returnedDate = returnedDate;
-        
-        for(uint j=0; j<itemsOfInterest.length; j++){
-            ItemsOfInterest storage i = list[listSize];
-            i.status = itemsOfInterest[j][0];
-            i.itemtype = itemsOfInterest[j][1];
-            for (uint k=0; k<newitems[j].length; k++){
-                Item storage item = itemsList[itemsSize];
-                item.id = newitems[j][k][0];
-                item.department = newitems[j][k][1];
-                item.itemType = newitems[j][k][2];
-                item.price = newitems[j][k][3];
-                itemsToLists[itemsSize] = listSize;
-                itemsUnderInterest.push(item);
-                itemsSize++;
-            }
-            i.quantity = itemsOfInterest[j][2];
-            i.unitCost = itemsOfInterest[j][3];
-            itemsToTransactions[listSize] = t.id;
-            interest.push(i);
-            listSize++;
-        }
-        transactionList.push(t);
-        
-    }
-    function receivedTransaction(string memory id, string memory receiptNumber, string memory user, string memory source,  string[][] memory itemsOfInterest, string[][][] memory newitems) public {
-        uint transactionsID = transactionSize++;
-        Transaction storage t = transactions[transactionsID];
-        t.id = id;
-        t.receiptNumber = receiptNumber;
-        t.user = user;
         t.source = source;
-       
-        for(uint j=0; j<itemsOfInterest.length; j++){
-            ItemsOfInterest storage i = list[listSize];
-            i.status = itemsOfInterest[j][0];
-            i.itemtype = itemsOfInterest[j][1];
-            for (uint k=0; k<newitems[j].length; k++){
-                Item storage item = itemsList[itemsSize];
-                item.id = newitems[j][k][0];
-                item.department = newitems[j][k][1];
-                item.itemType = newitems[j][k][2];
-                item.price = newitems[j][k][3];
-                itemsToLists[itemsSize] = listSize;
-                itemsUnderInterest.push(item);
-                itemsSize++;
-            }
-            i.quantity = itemsOfInterest[j][2];
-            i.unitCost = itemsOfInterest[j][3];
-            itemsToTransactions[listSize] = t.id;
-            interest.push();
-            listSize++;
-        }
-
-    transactionList.push(t);
-
-    }
-
-    function requestingTransaction(string memory id, string memory receiptNumber, string memory user, string memory department, string memory requiredDate, string[][] memory itemsOfInterest, string[][][] memory newitems) public {
-        uint transactionsID = transactionSize++;
-        Transaction storage t = transactions[transactionsID];
-        t.id = id;
         t.receiptNumber = receiptNumber;
         t.user = user;
+        t.transactionType = transactionType;       
+
+        for(uint i = 0; i<newReceivedItems.length; i++){
+            t.receivedItems.push();
+            t.receivedItems[i].id = newReceivedItems[i][0];
+            t.receivedItems[i].itemType = newReceivedItems[i][1];
+            t.receivedItems[i].quantity = newReceivedItems[i][2];
+            t.receivedItems[i].unitCost = newReceivedItems[i][3];
+            t.receivedItems[i].subinventory = newReceivedItems[i][4];
+            for(uint j = 0; j<newItems[i].length; j++){
+                t.receivedItems[i].items.push();
+                t.receivedItems[i].items[j] = newItems[i][j];
+            }
+        }
+        auditTransaction(id, dataHash);
+    }
+
+    function getReceivingTransaction(string memory id) public view returns(ReceivingTransaction memory transaction){
+        transaction = receiving[id];
+    }
+
+    function createRequestingTransaction(string memory dataHash, string memory id, string memory department, string memory requiredDate, string memory receiptNumber, string memory user, string memory transactionType, string[][] memory newRequestedItems) public {
+        RequestingTransaction storage t = requesting[id];
+        t.id = id;
         t.department = department;
         t.requiredDate = requiredDate;
-      
-        for(uint j=0; j<itemsOfInterest.length; j++){
-            ItemsOfInterest storage i = list[listSize];
-            i.status = itemsOfInterest[j][0];
-            i.itemtype = itemsOfInterest[j][1];
-            for (uint k=0; k<newitems[j].length; k++){
-                Item storage item = itemsList[itemsSize];
-                item.id = newitems[j][k][0];
-                item.department = newitems[j][k][1];
-                item.itemType = newitems[j][k][2];
-                item.price = newitems[j][k][3];
-                itemsToLists[itemsSize] = listSize;
-                itemsUnderInterest.push(item);
-                itemsSize++;
-            }
-            i.quantity = itemsOfInterest[j][2];
-            i.unitCost = itemsOfInterest[j][3];
-            itemsToTransactions[listSize] = t.id;
-            interest.push();
-            listSize++;
-        }
-        transactionList.push(t);
-    }
-
-    function transferTransaction(string memory id, string memory receiptNumber, string memory user, string memory department, string memory requestingTransactions, string[][] memory itemsOfInterest, string[][][] memory newitems) public {
-        uint transactionsID = transactionSize++;
-        Transaction storage t = transactions[transactionsID];
-        t.id = id;
         t.receiptNumber = receiptNumber;
         t.user = user;
+        t.transactionType = transactionType;
+        
+        for(uint i =0; i<newRequestedItems.length; i++){
+            t.requestedItems.push();
+            RequestedItems memory it =  RequestedItems(newRequestedItems[i][0], newRequestedItems[i][1], newRequestedItems[i][2], newRequestedItems[i][3]);
+            t.requestedItems[i].id = it.id;
+            t.requestedItems[i].itemType = it.itemType;
+            t.requestedItems[i].status = it.status;
+            t.requestedItems[i].quantity = it.quantity;
+        }
+        auditTransaction(id, dataHash);
+    }
+
+    function getRequestingTransaction(string memory id) public view returns (RequestingTransaction memory transaction){
+        transaction = requesting[id];
+    }
+
+    function createReturningTransaction(string memory dataHash, string memory id, string memory department, string memory returnedDate, string memory receiptNumber, string memory user, string memory transactionType, string[][]  memory newReturnedItems) public {
+        ReturningTransaction storage t = returning[id];
+        t.id = id;
         t.department = department;
-        t.requestingTransaction = requestingTransactions;
-
-        for(uint j=0; j<itemsOfInterest.length; j++){
-            ItemsOfInterest storage i = list[listSize];
-            i.status = itemsOfInterest[j][0];
-            i.itemtype = itemsOfInterest[j][1];
-            for (uint k=0; k<newitems[j].length; k++){
-                Item storage item = itemsList[itemsSize];
-                item.id = newitems[j][k][0];
-                item.department = newitems[j][k][1];
-                item.itemType = newitems[j][k][2];
-                item.price = newitems[j][k][3];
-                itemsToLists[itemsSize] = listSize; //listSize as the index of the specific list in the mapping
-                itemsUnderInterest.push(item);
-                itemsSize++;
-            }
-            i.quantity = itemsOfInterest[j][2];
-            i.unitCost = itemsOfInterest[j][3];
-            itemsToTransactions[listSize] = t.id;
-            interest.push(i);
-            listSize++;
+        t.returnedDate = returnedDate;
+        t.receiptNumber = receiptNumber;
+        t.user = user;
+        t.transactionType = transactionType;
+        
+        for(uint i =0; i<newReturnedItems.length; i++){
+            t.returnedItems.push();
+            ReturnedItems memory it =  ReturnedItems(newReturnedItems[i][0], newReturnedItems[i][1], newReturnedItems[i][2], newReturnedItems[i][3]);
+            t.returnedItems[i].id = it.id;
+            t.returnedItems[i].item = it.item;
+            t.returnedItems[i].itemType = it.itemType;
+            t.returnedItems[i].status = it.status;
         }
-        transactionList.push(t);
-    }   
-   
-    function getDepartments() public view returns (Department[] memory depts){ //can i use this? or sth like this?
-        depts = departments; 
-    }
-    // TODO define getters for every public array like the one for department
-
-    function getInterest() public view returns(ItemsOfInterest[] memory newItemsList) {
-        newItemsList = interest;
-    }
-    function getItems() public view returns (Item[] memory newItems) {
-        newItems = itemsUnderInterest;
+        auditTransaction(id, dataHash);
     }
 
-    function getItemsWithInterest() public view returns(uint[] memory itemsWithInterest){
-        uint[] memory return_variables = new uint[](itemsSize);
-        for (uint k=0; k<itemsSize; k++){
-            return_variables[k] = itemsToLists[k];
-        }
-        itemsWithInterest = return_variables;
+    function getReturningTransaction(string memory id) public view returns (ReturningTransaction memory transaction){
+        transaction = returning[id];
     }
-
-    function getInterestWithTransactions() public view returns(string[] memory interestWithTransactions){
-        string[] memory return_variables = new string[](listSize);
-        for (uint k=0; k<listSize; k++){
-            return_variables[k] = itemsToTransactions[k];
-        }
-        interestWithTransactions = return_variables;
-    }
-
-    function getTransactions() public view returns (Transaction[] memory transaction){
-        transaction = transactionList;
-    }
-
-
 } 
