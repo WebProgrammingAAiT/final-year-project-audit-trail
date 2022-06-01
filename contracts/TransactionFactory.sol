@@ -5,6 +5,13 @@ pragma solidity >=0.8.13;
 //pragma experimental ABIEncoderV2;
 
 contract TransactionFactory {
+
+    struct Users {
+        string id;
+        string createdBy;
+        string username;
+        string timestamp;
+    }
     struct ReceivingTransaction {
         string id;
         string source;
@@ -74,9 +81,10 @@ contract TransactionFactory {
     mapping(string => RequestingTransaction) requesting;
     mapping(string => ReturningTransaction) returning;
 
+    mapping(string => Users) users;
+
     mapping(string => bytes32) public dataHashes;
     string[] public auditedTransactions;
-
     modifier txDoesntExists(string memory transactionIdentifier) {
         require(
             dataHashes[transactionIdentifier] == 0,
@@ -92,6 +100,10 @@ contract TransactionFactory {
         bytes32 dataHash = stringToBytes32(hash);
         dataHashes[transactionIdentifier] = dataHash;
         auditedTransactions.push(transactionIdentifier);
+    }
+
+    function getAllTransactions() public view returns(string[] memory auditedlist){
+        return auditedTransactions;
     }
 
     function validateTransaction(
@@ -119,6 +131,16 @@ contract TransactionFactory {
         assembly {
             result := mload(add(source, 32))
         }
+    }
+
+    function createUsers(string memory id, string memory username, string memory createdBy, string memory timestamp) public {
+        Users storage u = users[id];
+        u.username = username;
+        u.createdBy = createdBy;
+        u.timestamp = timestamp;
+    }
+    function getUser(string memory id) public view returns (Users memory user){
+        user = users[id];
     }
 
     function createTransferringTransaction(
