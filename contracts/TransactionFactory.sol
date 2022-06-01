@@ -5,8 +5,7 @@ pragma solidity >=0.8.13;
 //pragma experimental ABIEncoderV2;
 
 contract TransactionFactory {
-
-    struct Users {
+    struct User {
         string id;
         string createdBy;
         string username;
@@ -22,16 +21,19 @@ contract TransactionFactory {
     }
     struct ReceivedItems {
         string id;
-        string itemType;
+        string itemTypeId;
+        string itemTypeName;
         string quantity;
         string unitCost;
-        string subinventory;
+        string subinventoryId;
+        string subinventoryName;
         string[] items;
     }
 
     struct ReturningTransaction {
         string id;
-        string department;
+        string departmentId;
+        string departmentName;
         string returnedDate;
         string receiptNumber;
         string user;
@@ -41,28 +43,32 @@ contract TransactionFactory {
     struct ReturnedItems {
         string id;
         string item;
-        string itemType;
+        string itemTypeId;
+        string itemTypeName;
         string status;
     }
 
     struct TransferringTransaction {
         string id;
         string requestingTransaction;
-        string department;
+        string departmentId;
+        string departmentName;
         string receiptNumber;
         string user;
         string transactionType;
         TransferredItems transferredItems;
     }
     struct TransferredItems {
-        string itemType;
+        string itemTypeId;
+        string itemTypeName;
         string quantity;
         string[] items;
     }
 
     struct RequestingTransaction {
         string id;
-        string department;
+        string departmentId;
+        string departmentName;
         string requiredDate;
         string receiptNumber;
         string user;
@@ -71,7 +77,8 @@ contract TransactionFactory {
     }
     struct RequestedItems {
         string id;
-        string itemType;
+        string itemTypeId;
+        string itemTypeName;
         string status;
         string quantity;
     }
@@ -81,7 +88,7 @@ contract TransactionFactory {
     mapping(string => RequestingTransaction) requesting;
     mapping(string => ReturningTransaction) returning;
 
-    mapping(string => Users) users;
+    mapping(string => User) users;
 
     mapping(string => bytes32) public dataHashes;
     string[] public auditedTransactions;
@@ -102,7 +109,11 @@ contract TransactionFactory {
         auditedTransactions.push(transactionIdentifier);
     }
 
-    function getAllTransactions() public view returns(string[] memory auditedlist){
+    function getAllTransactions()
+        public
+        view
+        returns (string[] memory auditedlist)
+    {
         return auditedTransactions;
     }
 
@@ -133,13 +144,20 @@ contract TransactionFactory {
         }
     }
 
-    function createUsers(string memory id, string memory username, string memory createdBy, string memory timestamp) public {
-        Users storage u = users[id];
+    function createUser(
+        string memory id,
+        string memory username,
+        string memory createdBy,
+        string memory timestamp
+    ) public {
+        User storage u = users[id];
+        u.id = id;
         u.username = username;
         u.createdBy = createdBy;
         u.timestamp = timestamp;
     }
-    function getUser(string memory id) public view returns (Users memory user){
+
+    function getUser(string memory id) public view returns (User memory user) {
         user = users[id];
     }
 
@@ -147,7 +165,8 @@ contract TransactionFactory {
         string memory dataHash,
         string memory id,
         string memory requestingTransaction,
-        string memory department,
+        string memory departmentId,
+        string memory departmentName,
         string memory receiptNumber,
         string memory user,
         string memory transactionType,
@@ -157,12 +176,14 @@ contract TransactionFactory {
         TransferredItems memory items = TransferredItems(
             transferredItems[0],
             transferredItems[1],
+            transferredItems[2],
             newItems
         );
         transferring[id] = TransferringTransaction(
             id,
             requestingTransaction,
-            department,
+            departmentId,
+            departmentName,
             receiptNumber,
             user,
             transactionType,
@@ -199,10 +220,12 @@ contract TransactionFactory {
         for (uint256 i = 0; i < newReceivedItems.length; i++) {
             t.receivedItems.push();
             t.receivedItems[i].id = newReceivedItems[i][0];
-            t.receivedItems[i].itemType = newReceivedItems[i][1];
-            t.receivedItems[i].quantity = newReceivedItems[i][2];
-            t.receivedItems[i].unitCost = newReceivedItems[i][3];
-            t.receivedItems[i].subinventory = newReceivedItems[i][4];
+            t.receivedItems[i].itemTypeId = newReceivedItems[i][1];
+            t.receivedItems[i].itemTypeName = newReceivedItems[i][2];
+            t.receivedItems[i].quantity = newReceivedItems[i][3];
+            t.receivedItems[i].unitCost = newReceivedItems[i][4];
+            t.receivedItems[i].subinventoryId = newReceivedItems[i][5];
+            t.receivedItems[i].subinventoryName = newReceivedItems[i][6];
             for (uint256 j = 0; j < newItems[i].length; j++) {
                 t.receivedItems[i].items.push();
                 t.receivedItems[i].items[j] = newItems[i][j];
@@ -222,7 +245,8 @@ contract TransactionFactory {
     function createRequestingTransaction(
         string memory dataHash,
         string memory id,
-        string memory department,
+        string memory departmentId,
+        string memory departmentName,
         string memory requiredDate,
         string memory receiptNumber,
         string memory user,
@@ -231,7 +255,8 @@ contract TransactionFactory {
     ) public txDoesntExists(id) {
         RequestingTransaction storage t = requesting[id];
         t.id = id;
-        t.department = department;
+        t.departmentId = departmentId;
+        t.departmentName = departmentName;
         t.requiredDate = requiredDate;
         t.receiptNumber = receiptNumber;
         t.user = user;
@@ -243,7 +268,8 @@ contract TransactionFactory {
                 newRequestedItems[i][0],
                 newRequestedItems[i][1],
                 newRequestedItems[i][2],
-                newRequestedItems[i][3]
+                newRequestedItems[i][3],
+                newRequestedItems[i][4]
             );
             t.requestedItems[i] = requestedItems;
         }
@@ -261,7 +287,8 @@ contract TransactionFactory {
     function createReturningTransaction(
         string memory dataHash,
         string memory id,
-        string memory department,
+        string memory departmentId,
+        string memory departmentName,
         string memory returnedDate,
         string memory receiptNumber,
         string memory user,
@@ -270,7 +297,8 @@ contract TransactionFactory {
     ) public txDoesntExists(id) {
         ReturningTransaction storage t = returning[id];
         t.id = id;
-        t.department = department;
+        t.departmentId = departmentId;
+        t.departmentName = departmentName;
         t.returnedDate = returnedDate;
         t.receiptNumber = receiptNumber;
         t.user = user;
@@ -282,7 +310,8 @@ contract TransactionFactory {
                 newReturnedItems[i][0],
                 newReturnedItems[i][1],
                 newReturnedItems[i][2],
-                newReturnedItems[i][3]
+                newReturnedItems[i][3],
+                newReturnedItems[i][4]
             );
             t.returnedItems[i] = returnedItems;
         }

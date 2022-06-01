@@ -133,7 +133,19 @@ async function testReceiving() {
     for (let i = 0; i < receivingTransaction.receivedItems.length; i++) {
       let receivedItem = receivingTransaction.receivedItems[i];
       let { itemType, subinventory, quantity, unitCost, _id: objId } = receivedItem;
-      itemsOfInterest.push([objId, itemType, quantity.toString(), unitCost.toString(), subinventory]);
+      let itemTypeId = itemType._id;
+      let itemTypeName = itemType.name;
+      let subinventoryId = subinventory._id;
+      let subinventoryName = subinventory.name;
+      itemsOfInterest.push([
+        objId,
+        itemTypeId,
+        itemTypeName,
+        quantity.toString(),
+        unitCost.toString(),
+        subinventoryId,
+        subinventoryName,
+      ]);
       newItems.push(receivedItem.items);
     }
 
@@ -193,13 +205,17 @@ async function testTransfer() {
     __v: 0,
   };
   let itemsOfInterest = [
-    transferringTransaction.transferredItems["itemType"],
+    transferringTransaction.transferredItems["itemType"]._id,
+    transferringTransaction.transferredItems["itemType"].name,
     transferringTransaction.transferredItems["quantity"].toString(),
   ];
   let newItems = transferringTransaction.transferredItems.items;
 
   let id = transferringTransaction._id;
   let { requestingTransaction, department, receiptNumber, user } = transferringTransaction;
+
+  let departmentId = department._id;
+  let departmentName = department.name;
 
   let dataHash = hash(transferringTransaction);
 
@@ -210,7 +226,8 @@ async function testTransfer() {
     dataHash,
     id,
     requestingTransaction,
-    department,
+    departmentId,
+    departmentName,
     receiptNumber,
     user,
     "Transferring_Transaction",
@@ -257,11 +274,15 @@ async function testReturn() {
 
     let id = returningTransaction._id;
     let { receiptNumber, user, department, returnedDate } = returningTransaction;
+    let departmentId = department._id;
+    let departmentName = department.name;
 
     for (let i = 0; i < returningTransaction.returnedItems.length; i++) {
       let returnedItem = returningTransaction.returnedItems[i];
       let { item, itemType, status, _id: objId } = returnedItem;
-      itemsOfInterest.push([objId, item, itemType, status]);
+      let itemTypeId = itemType._id;
+      let itemTypeName = itemType.name;
+      itemsOfInterest.push([objId, item, itemTypeId, itemTypeName, status]);
     }
     // console.log(itemsOfInterest);
     // return;
@@ -275,7 +296,8 @@ async function testReturn() {
     const create = await auditTrailContract.createReturningTransaction(
       dataHash,
       id,
-      department,
+      departmentId,
+      departmentName,
       returnedDate,
       receiptNumber,
       user,
@@ -319,10 +341,14 @@ async function testRequest() {
   let itemsOfInterest = [];
   let id = requestingTransaction._id;
   let { receiptNumber, user, department, requiredDate } = requestingTransaction;
+  let departmentId = department._id;
+  let departmentName = department.name;
   for (let i = 0; i < requestingTransaction.requestedItems.length; i++) {
     let requestedItem = requestingTransaction.requestedItems[i];
     let { itemType, status, quantity, _id: objId } = requestedItem;
-    itemsOfInterest.push([objId, itemType, status, quantity.toString()]);
+    let itemTypeId = itemType._id;
+    let itemTypeName = itemType.name;
+    itemsOfInterest.push([objId, itemTypeId, itemTypeName, status, quantity.toString()]);
   }
   let dataHash = hash(requestingTransaction);
 
@@ -333,7 +359,8 @@ async function testRequest() {
   const create = await auditTrailContract.createRequestingTransaction(
     dataHash,
     id,
-    department,
+    departmentId,
+    departmentName,
     requiredDate,
     receiptNumber,
     user,
