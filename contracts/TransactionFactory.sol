@@ -119,13 +119,35 @@ contract TransactionFactory {
 
     function validateTransaction(
         string memory transactionIdentifier,
-        string memory hash
+        string memory hash,
+        string memory transactionType,
+        string[] memory statuses
     ) public view returns (string memory) {
         bytes32 dataHash = stringToBytes32(hash);
         if (dataHashes[transactionIdentifier] == 0) {
             return "missing";
         } else if (dataHashes[transactionIdentifier] == dataHash) {
-            return "valid";
+            if ((keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Requesting_Transaction"))) || (keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Returning_Transaction")))){
+                for (uint i = 0; i<statuses.length; i++){
+                    if (keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Requesting_Transaction"))) {
+                        bytes32 oldStatus = stringToBytes32(requesting[transactionIdentifier].requestedItems[i].status);
+                        bytes32 newStatus = stringToBytes32(statuses[i]);
+                        if (oldStatus != newStatus) {
+                            return "invalid status";
+                        }
+                    }else if (keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Returning_Transaction"))) {
+                        // return string(abi.encodePacked(returning[transactionIdentifier].returnedItems[i].status, statuses[i]));
+                        bytes32 oldStatus = stringToBytes32(returning[transactionIdentifier].returnedItems[i].status);
+                        bytes32 newStatus = stringToBytes32(statuses[i]);
+                        if (oldStatus != newStatus) {
+                            return "invalid status";
+                        }
+                    }
+                }
+                return "valid";
+            } else {
+                return "valid";
+            } 
         }
         return "invalid";
     }
