@@ -20,104 +20,95 @@ async function getContract(){
 async function main() {
   // sample function calls below
   try {
-    // testTransfer();
+    // await testTransfer();
     // await testRequest();
     // await testReturn();
-    // testReceiving();
-    await updateStatus();
-    await testGetters();
+    // await testReceiving();
+    // await updateStatus();
+    // await testGetters();
 
-    trailsUpdate.on("NewTrail", () => {
-      console.log("New trail: ", trails.length, "\nStatus : Pending");
-      // TODO call audit with trail
-      console.log("With trail:", trails[trails.length - 1].id);
-    });
-
-    trailsUpdate.on("StatusChanged", (status) => {
-      console.log("Status :", status);
-    });
   } catch (err) {
     console.log(err);
   }
 }
 
-async function validate(id, hash) {
+async function validate(id, hash, transactionType, statuses) {
   const auditTrailContract = await getContract();
-  const validate = await auditTrailContract.validateTransaction(id, hash);
-  console.log("validate: ", validate);
+  const validate = await auditTrailContract.validateTransaction(id, hash, transactionType, statuses);
+  console.log("validate of",id,": ", validate);
 }
 
 async function testReceiving() {
   try {
-    // const auditTrailContract = await getContract();
-    let receivingTransaction = {
-      _id: "62927455f12b702f6e8cae81",
-      source: "1001",
-      receivedItems: [
-        {
-          itemType: "627119e949d48e67c9ca5cf7",
-          items: [
-            "62927448f12b702f6e8cae69",
-            "62927449f12b702f6e8cae6b",
-            "6292744af12b702f6e8cae6d",
-            "6292744af12b702f6e8cae6f",
-            "6292744bf12b702f6e8cae71",
-            "6292744cf12b702f6e8cae73",
-          ],
-          quantity: 6,
-          unitCost: 15000,
-          subinventory: "6252bd5e85093e0c778f062b",
-          _id: "62927455f12b702f6e8cae82",
-        },
-        {
-          itemType: "62711a6549d48e67c9ca5d00",
-          items: [
-            "62927454f12b702f6e8cae77",
-            "62927454f12b702f6e8cae79",
-            "62927454f12b702f6e8cae7b",
-            "62927455f12b702f6e8cae7d",
-            "62927455f12b702f6e8cae7f",
-          ],
-          quantity: 5,
-          unitCost: 20000,
-          subinventory: "6252bd5e85093e0c778f062b",
-          _id: "62927455f12b702f6e8cae83",
-        },
-      ],
-      receiptNumber: "6-87799987144193--451",
-      user: "6252eab687ec4852535ca063",
-      type: "Receiving_Transaction",
-      createdAt: { $date: { $numberLong: "1653765205888" } },
-      updatedAt: { $date: { $numberLong: "1653765205888" } },
-      __v: 0,
-    };
+    const auditTrailContract = await getContract();
     // let receivingTransaction = {
-    //   _id: "628ca362987fb5c971616bb2",
-    //   source: "11002",
+    //   _id: "62927455f12b702f6e8cae81",
+    //   source: "1001",
     //   receivedItems: [
     //     {
     //       itemType: "627119e949d48e67c9ca5cf7",
     //       items: [
-    //         "628ca362987fb5c971616ba6",
-    //         "628ca362987fb5c971616ba8",
-    //         "628ca362987fb5c971616baa",
-    //         "628ca362987fb5c971616bac",
-    //         "628ca362987fb5c971616bae",
-    //         "628ca362987fb5c971616bb0",
+    //         "62927448f12b702f6e8cae69",
+    //         "62927449f12b702f6e8cae6b",
+    //         "6292744af12b702f6e8cae6d",
+    //         "6292744af12b702f6e8cae6f",
+    //         "6292744bf12b702f6e8cae71",
+    //         "6292744cf12b702f6e8cae73",
     //       ],
     //       quantity: 6,
     //       unitCost: 15000,
-    //       subinventory: "6252bc2a85093e0c778f0627",
-    //       _id: "628ca362987fb5c971616bb3",
+    //       subinventory: "6252bd5e85093e0c778f062b",
+    //       _id: "62927455f12b702f6e8cae82",
+    //     },
+    //     {
+    //       itemType: "62711a6549d48e67c9ca5d00",
+    //       items: [
+    //         "62927454f12b702f6e8cae77",
+    //         "62927454f12b702f6e8cae79",
+    //         "62927454f12b702f6e8cae7b",
+    //         "62927455f12b702f6e8cae7d",
+    //         "62927455f12b702f6e8cae7f",
+    //       ],
+    //       quantity: 5,
+    //       unitCost: 20000,
+    //       subinventory: "6252bd5e85093e0c778f062b",
+    //       _id: "62927455f12b702f6e8cae83",
     //     },
     //   ],
-    //   receiptNumber: "09583646612-781344612",
-    //   user: "6280b80f4aca065e37681b74",
+    //   receiptNumber: "6-87799987144193--451",
+    //   user: "6252eab687ec4852535ca063",
     //   type: "Receiving_Transaction",
-    //   createdAt: { $date: { $numberLong: "1653384034730" } },
-    //   updatedAt: { $date: { $numberLong: "1653384034730" } },
+    //   createdAt: { $date: { $numberLong: "1653765205888" } },
+    //   updatedAt: { $date: { $numberLong: "1653765205888" } },
     //   __v: 0,
     // };
+    let receivingTransaction = {
+      _id: "628ca362987fb5c971616bb2",
+      source: "11002",
+      receivedItems: [
+        {
+          itemType: "627119e949d48e67c9ca5cf7",
+          items: [
+            "628ca362987fb5c971616ba6",
+            "628ca362987fb5c971616ba8",
+            "628ca362987fb5c971616baa",
+            "628ca362987fb5c971616bac",
+            "628ca362987fb5c971616bae",
+            "628ca362987fb5c971616bb0",
+          ],
+          quantity: 6,
+          unitCost: 15000,
+          subinventory: "6252bc2a85093e0c778f0627",
+          _id: "628ca362987fb5c971616bb3",
+        },
+      ],
+      receiptNumber: "09583646612-781344612",
+      user: "6280b80f4aca065e37681b74",
+      type: "Receiving_Transaction",
+      createdAt: { $date: { $numberLong: "1653384034730" } },
+      updatedAt: { $date: { $numberLong: "1653384034730" } },
+      __v: 0,
+    };
 
     let itemsOfInterest = [];
     let newItems = [];
@@ -146,37 +137,33 @@ async function testReceiving() {
     let dataHash = hash(receivingTransaction);
 
     // const recitems = [
-    //   ["id", "type", "quantity", "unitcost", "subs"],
-    //   ["id2", "type2", "quantity2", "unitcost2", "subs2"],
+    //   ["id", "typeid", "typename", "quantity", "unitcost", "subsid","subsname"],
+    //   ["id2", "typeid2","typename2", "quantity2", "unitcost2", "subsid2", "subsname2"],
     // ];
     // const newitems = [
     //   ["1", "2", "3"],
     //   ["4", "5"],
     // ];
 
-    const receive = await auditTrailContract.createReceivingTransaction(
-      dataHash,
-      id,
-      source,
-      receiptNumber,
-      user,
-      "Receiving_Transaction",
-      itemsOfInterest,
-      newItems
-    );
-    console.log(receive.hash);
-    trails.push({ id: "tid", data: "dataHash", hash: receive.hash });
-    trailsUpdate.emit("NewTrail");
-    await receive.wait();
-    trailsUpdate.emit("StatusChanged", "Complete");
-    console.log("completed");
+    // const receive = await auditTrailContract.createReceivingTransaction(
+    //   "dataHash",
+    //   "id6",
+    //   "source6",
+    //   "receiptNumber6",
+    //   "user6",
+    //   "Receiving_Transaction",
+    //   recitems,
+    //   newitems
+    // );
+    // console.log(receive.hash);
+    // trails.push({ id: "tid", data: "dataHash", hash: receive.hash });
+    // trailsUpdate.emit("NewTrail");
+    // await receive.wait();
+    // trailsUpdate.emit("StatusChanged", "Complete");
+    // console.log("completed");
 
-    validate(id, dataHash);
+    validate("id6", "dataHash", "Receiving_Transaction", []);
 
-    // const gets = await auditTrailContract.getReceivingTransactions();
-    // console.log("\n\nGETS:: \n\n",gets);
-    // console.log("\n\n\n RECEIVED",gets[0].receivedItems);
-    // console.log("\n\n\n ITEMS",gets[0].receivedItems[1].items);
   } catch (err) {
     console.log(err);
   }
@@ -213,99 +200,90 @@ async function testTransfer() {
 
   let dataHash = hash(transferringTransaction);
 
-  const auditTrailContract = await getContract();
-  // const transitems = ["itemtype", "quantity"];
+  // const auditTrailContract = await getContract();
+  // const transitems = ["itemtypeid", "itemtypename", "quantity"];
   // const newitems = ["it1", "it2"];
-  const create = await auditTrailContract.createTransferringTransaction(
-    dataHash,
-    id,
-    requestingTransaction,
-    departmentId,
-    departmentName,
-    receiptNumber,
-    user,
-    "Transferring_Transaction",
-    itemsOfInterest,
-    newItems
-  );
-  console.log("create: ", create.hash);
-  trails.push({ id: "tid", data: "dataHash", hash: create.hash });
-  trailsUpdate.emit("NewTrail");
-  await create.wait();
-  trailsUpdate.emit("StatusChanged", "Complete");
+  // const create = await auditTrailContract.createTransferringTransaction(
+  //   "dataHash",
+  //   "id5",
+  //   "requestingTransaction5",
+  //   "departmentId5",
+  //   "departmentName5",
+  //   "receiptNumber5",
+  //   "user5",
+  //   "Transferring_Transaction",
+  //   transitems,
+  //   newitems
+  // );
 
-  validate(id, dataHash);
+  validate("id5", "dataHash", "Transferring_Transaction", []);
 }
 async function testReturn() {
   let txHash = "";
+  auditTrailContract = await getContract();
   try {
-    // let returningTransaction = {
-    //   _id: "6283744afe37953da19d7eeb",
-    //   department: "624c33a58a6223667774a9f8",
-    //   returnedDate: "2022-04-15T11:26:45.532Z",
-    //   returnedItems: [
-    //     {
-    //       item: "62557b6345d54c7c7118bdfa",
-    //       itemType: "6252c670f5992c9b958f2ce5",
-    //       status: "pending",
-    //       _id: "6283744afe37953da19d7eeb",
-    //     },
-    //     {
-    //       item: "62557b6345d54c7c7118bdf8",
-    //       itemType: "6252c670f5992c9b958f2ce5",
-    //       status: "pending",
-    //       _id: "62852552220d16fa3598bf0a",
-    //     },
-    //   ],
-    //   receiptNumber: "862295428975720061461",
-    //   user: "627e06ab1d35ceb41ec6ba79",
-    //   type: "Returning_Transaction",
-    //   createdAt: { $date: { $numberLong: "1652782154784" } },
-    //   updatedAt: { $date: { $numberLong: "1652893010619" } },
-    //   __v: 0,
-    // };
-    // let id = returningTransaction._id;
-    // let { receiptNumber, user, department, returnedDate } = returningTransaction;
-    // let departmentId = department._id;
-    // let departmentName = department.name;
+    let returningTransaction = {
+      _id: "6283744afe37953da19d7eeb",
+      department: "624c33a58a6223667774a9f8",
+      returnedDate: "2022-04-15T11:26:45.532Z",
+      returnedItems: [
+        {
+          item: "62557b6345d54c7c7118bdfa",
+          itemType: "6252c670f5992c9b958f2ce5",
+          status: "pending",
+          _id: "6283744afe37953da19d7eeb",
+        },
+        {
+          item: "62557b6345d54c7c7118bdf8",
+          itemType: "6252c670f5992c9b958f2ce5",
+          status: "pending",
+          _id: "62852552220d16fa3598bf0a",
+        },
+      ],
+      receiptNumber: "862295428975720061461",
+      user: "627e06ab1d35ceb41ec6ba79",
+      type: "Returning_Transaction",
+      createdAt: { $date: { $numberLong: "1652782154784" } },
+      updatedAt: { $date: { $numberLong: "1652893010619" } },
+      __v: 0,
+    };
+    let id = returningTransaction._id;
+    let { receiptNumber, user, department, returnedDate } = returningTransaction;
+    let departmentId = department._id;
+    let departmentName = department.name;
 
-    let itemsOfInterest = [["objId1", "item1", "itemTypeId1", "itemTypeName1", "status1"],["objId2", "item2", "itemTypeId2", "itemTypeName2", "status2"]];
-
-    // for (let i = 0; i < returningTransaction.returnedItems.length; i++) {
-    //   let returnedItem = returningTransaction.returnedItems[i];
-    //   let { item, itemType, status, _id: objId } = returnedItem;
-    //   let itemTypeId = itemType._id;
-    //   let itemTypeName = itemType.name;
-    //   itemsOfInterest.push(["objId", "item", "itemTypeId", "itemTypeName", "status"]);
-    // }
-    // console.log(itemsOfInterest);
+    let itemsOfInterest = [];
+    for (let i = 0; i < returningTransaction.returnedItems.length; i++) {
+      let returnedItem = returningTransaction.returnedItems[i];
+      let { item, itemType, status, _id: objId } = returnedItem;
+      let itemTypeId = itemType._id;
+      let itemTypeName = itemType.name;
+      itemsOfInterest.push([objId, item, itemTypeId, itemTypeName, status]);
+    }
+    console.log(itemsOfInterest);
     // return;
-    // let dataHash = hash(returningTransaction);
+    let dataHash = hash(returningTransaction);
     const auditTrailContract = await getContract();
-    const resitems = [
-      ["id3", "item3", "typeid3","typename3", "status3"],
-      ["id2", "item2", "typeid2", "typename2", "status2"],
-      ["id", "item", "typeid","typename", "status"],
-    ];
+    // const resitems = [
+    //   ["id3", "item3", "typeid3","typename3", "status3"],
+    //   ["id2", "item2", "typeid2", "typename2", "status2"],
+    //   ["id", "item", "typeid","typename", "status"],
+    // ];
     const create = await auditTrailContract.createReturningTransaction(
-      "dataHash",
-      "id",
-      "departmentId",
-      "departmentName",
-      "returnedDate",
-      "receiptNumber",
-      "user",
+      dataHash,
+      id,
+      departmentId,
+      departmentName,
+      returnedDate,
+      receiptNumber,
+      user,
       "Returning_Transaction",
       itemsOfInterest
     );
     txHash = create.hash;
     console.log(create.hash);
-    trails.push({ id: "tid", data: "dataHash", hash: create.hash });
-    trailsUpdate.emit("NewTrail");
-    await create.wait();
-    trailsUpdate.emit("StatusChanged", "Complete");
 
-    // validate("id", "dataHash");
+    validate("id3", "dataHash", "Returning_Transaction", ["newStatus", "status2"]);
   } catch (err) {
     console.log("EROR",err); // 'Failed test'
   }
@@ -313,86 +291,86 @@ async function testReturn() {
 async function testRequest() {
   const auditTrailContract = await getContract();
 
-  // let requestingTransaction = {
-  //   _id: "62920d4246729540aaaec1c4",
-  //   department: "624c33a58a6223667774a9f8",
-  //   requiredDate: "2022-04-15T11:26:45.532Z",
-  //   requestedItems: [
-  //     {
-  //       itemType: "627119e949d48e67c9ca5cf7",
-  //       quantity: 1,
-  //       status: "pending",
-  //       _id: "62920d4246729540aaaec1c5",
-  //     },
-  //   ],
-  //   receiptNumber: "--01424-8150407-77328",
-  //   user: "627e06ab1d35ceb41ec6ba79",
-  //   type: "Requesting_Transaction",
-  //   createdAt: { $date: { $numberLong: "1653738818412" } },
-  //   updatedAt: { $date: { $numberLong: "1653738818412" } },
-  //   __v: 0,
-  // };
+  let requestingTransaction = {
+    _id: "62920d4246729540aaaec1c4",
+    department: "624c33a58a6223667774a9f8",
+    requiredDate: "2022-04-15T11:26:45.532Z",
+    requestedItems: [
+      {
+        itemType: "627119e949d48e67c9ca5cf7",
+        quantity: 1,
+        status: "pending",
+        _id: "62920d4246729540aaaec1c5",
+      },
+    ],
+    receiptNumber: "--01424-8150407-77328",
+    user: "627e06ab1d35ceb41ec6ba79",
+    type: "Requesting_Transaction",
+    createdAt: { $date: { $numberLong: "1653738818412" } },
+    updatedAt: { $date: { $numberLong: "1653738818412" } },
+    __v: 0,
+  };
   let itemsOfInterest = [["objId", "itemTypeId", "itemTypeName", "status", "quantity"],["objId", "itemTypeId", "itemTypeName", "status", "quantity"]];
-  // let id = requestingTransaction._id;
-  // let { receiptNumber, user, department, requiredDate } = requestingTransaction;
-  // let departmentId = department._id;
-  // let departmentName = department.name;
-  // for (let i = 0; i < requestingTransaction.requestedItems.length; i++) {
-  //   let requestedItem = requestingTransaction.requestedItems[i];
-  //   let { itemType, status, quantity, _id: objId } = requestedItem;
-  //   let itemTypeId = itemType._id;
-  //   let itemTypeName = itemType.name;
-  //   itemsOfInterest.push([objId, itemTypeId, itemTypeName, status, quantity.toString()]);
-  // }
-  // let dataHash = hash(requestingTransaction);
+  let id = requestingTransaction._id;
+  let { receiptNumber, user, department, requiredDate } = requestingTransaction;
+  let departmentId = department._id;
+  let departmentName = department.name;
+  for (let i = 0; i < requestingTransaction.requestedItems.length; i++) {
+    let requestedItem = requestingTransaction.requestedItems[i];
+    let { itemType, status, quantity, _id: objId } = requestedItem;
+    let itemTypeId = itemType._id;
+    let itemTypeName = itemType.name;
+    itemsOfInterest.push([objId, itemTypeId, itemTypeName, status, quantity.toString()]);
+  }
+  let dataHash = hash(requestingTransaction);
 
-  // const resitems = [
-  //   ["id", "type", "status", "quantity"],
-  //   ["id", "type", "status", "quantity"],
-  // ];
-  const create = await auditTrailContract.createRequestingTransaction(
-    "dataHash",
-    "id2",
-    "departmentId",
-    "departmentName",
-    "requiredDate",
-    "receiptNumber",
-    "user",
-    "Requesting_Transaction",
-    itemsOfInterest
-  );
-  console.log(create.hash);
-  trails.push({ id: "tid", data: "dataHash", hash: create.hash });
-  trailsUpdate.emit("NewTrail");
-  await create.wait();
-  trailsUpdate.emit("StatusChanged", "Complete");
-  console.log("completed");
+  const resitems = [
+    ["id", "type", "status", "quantity"],
+    ["id", "type", "status", "quantity"],
+  ];
 
-  validate("id", "dataHash");
+  // const create = await auditTrailContract.createRequestingTransaction(
+  //   "dataHash",
+  //   "id2",
+  //   "departmentId",
+  //   "departmentName",
+  //   "requiredDate",
+  //   "receiptNumber",
+  //   "user",
+  //   "Requesting_Transaction",
+  //   itemsOfInterest
+  // );
+  // console.log(create.hash);
+  // trails.push({ id: "tid", data: "dataHash", hash: create.hash });
+  // trailsUpdate.emit("NewTrail");
+  // await create.wait();
+  // trailsUpdate.emit("StatusChanged", "Complete");
+  // console.log("completed");
+
+  validate("id2", "dataHash", "Requesting_Transaction", ["newStatus","status"]);
 }
 
 async function updateStatus(){
   const auditTrailContract = await getContract();
-  const update = auditTrailContract.updateStatus("id2", "Requesting_Transaction", 0, "newStatus");
+  const update = auditTrailContract.updateStatus("id3", "Returning_Transaction", 0, "newStatus");
   console.log(update.hash);
-  //call contract with sth like: (transactionId, transactionType, index, newStatus) or (transactionId, transactionType, [newStatuses]);
 }
 
 
 async function testGetters() {
   const auditTrailContract = await getContract();
 
-  // const received = await auditTrailContract.getReceivingTransaction("id");
+  // const received = await auditTrailContract.getReceivingTransaction("id6");
   // console.log("RECEIVED: ", received);
 
-  // const transfer = await auditTrailContract.getTransferTransaction("id2");
+  // const transfer = await auditTrailContract.getTransferTransaction("id5");
   // console.log("TRANSFER: ", transfer);
 
-  // const returned = await auditTrailContract.getReturningTransaction("id");
-  // console.log("RETURNED: ", returned);
+  // const returned = await auditTrailContract.getReturningTransaction("id3");
+  // console.log("RETURNED: ", returned.returnedItems.length);
 
-  const request = await auditTrailContract.getRequestingTransaction("id2");
-  console.log("REQUEST: ", request);
+  // const request = await auditTrailContract.getRequestingTransaction("id2");
+  // console.log("REQUEST: ", request.requestedItems.length);
 }
 async function getReceivingTransaction() {
   const auditTrailContract = await getContract();
