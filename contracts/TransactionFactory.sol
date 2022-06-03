@@ -30,24 +30,6 @@ contract TransactionFactory {
         string[] items;
     }
 
-    struct ReturningTransaction {
-        string id;
-        string departmentId;
-        string departmentName;
-        string returnedDate;
-        string receiptNumber;
-        string user;
-        string transactionType;
-        ReturnedItems[] returnedItems;
-    }
-    struct ReturnedItems {
-        string id;
-        string item;
-        string itemTypeId;
-        string itemTypeName;
-        string status;
-    }
-
     struct TransferringTransaction {
         string id;
         string requestingTransaction;
@@ -81,6 +63,24 @@ contract TransactionFactory {
         string itemTypeName;
         string status;
         string quantity;
+    }
+    
+    struct ReturningTransaction {
+        string id;
+        string departmentId;
+        string departmentName;
+        string returnedDate;
+        string receiptNumber;
+        string user;
+        string transactionType;
+        ReturnedItems[] returnedItems;
+    }
+    struct ReturnedItems {
+        string id;
+        string item;
+        string itemTypeId;
+        string itemTypeName;
+        string status;
     }
 
     mapping(string => TransferringTransaction) transferring;
@@ -155,6 +155,14 @@ contract TransactionFactory {
         u.username = username;
         u.createdBy = createdBy;
         u.timestamp = timestamp;
+    }
+
+    function updateStatus(string memory id, string memory transactionType, uint index, string memory status) public {
+        if (keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Requesting_Transaction"))) {
+            requesting[id].requestedItems[index].status = status;
+        }else if (keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Returning_Transaction"))) {
+            returning[id].returnedItems[index].status = status;
+        } 
     }
 
     function getUser(string memory id) public view returns (User memory user) {

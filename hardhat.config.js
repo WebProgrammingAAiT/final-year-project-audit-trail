@@ -5,7 +5,7 @@ require("dotenv").config({ path: __dirname + "/.env" });
 require("@nomiclabs/hardhat-ethers");
 
 module.exports = {
-  defaultNetwork: "rinkeby",
+  // defaultNetwork: "rinkeby",
   solidity: {
     version: "0.8.13",
     settings: {

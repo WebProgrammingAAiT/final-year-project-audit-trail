@@ -5,3 +5,6 @@
 **/cache/
 **/bin/
 contracts/AuditTrail.sol
+hardhat.config.js
+scripts/interact.js
+scripts/deploy.js
