@@ -73,6 +73,7 @@ contract TransactionFactory {
         string itemTypeId;
         string itemTypeName;
         string status;
+        string resolvedBy;
         string quantity;
     }
     
@@ -84,7 +85,6 @@ contract TransactionFactory {
         string receiptNumber;
         string user;
         string transactionType;
-        string resolvedBy;
         ReturnedItems[] returnedItems;
         
         string createdAt;
@@ -96,6 +96,8 @@ contract TransactionFactory {
         string itemTypeId;
         string itemTypeName;
         string status;
+        string resolvedBy;
+
     }
 
     mapping(string => TransferringTransaction) _transferring;
@@ -195,11 +197,13 @@ contract TransactionFactory {
         u.timestamp = timestamp;
     }
 
-    function updateStatus(string memory id, string memory transactionType, uint index, string memory status) public {
+    function updateStatus(string memory id, string memory transactionType, uint index, string memory status, string memory resolvedBy) public {
         if (keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Requesting_Transaction"))) {
             _requesting[id].requestedItems[index].status = status;
+            _requesting[id].requestedItems[index].resolvedBy = resolvedBy;
         }else if (keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Returning_Transaction"))) {
             _returning[id].returnedItems[index].status = status;
+            _returning[id].returnedItems[index].resolvedBy = resolvedBy = resolvedBy;
         } 
     }
 
@@ -330,7 +334,8 @@ contract TransactionFactory {
                 newRequestedItems[i][1],
                 newRequestedItems[i][2],
                 newRequestedItems[i][3],
-                newRequestedItems[i][4]
+                newRequestedItems[i][4],
+                newRequestedItems[i][5]
             );
             t.requestedItems[i] = requestedItems;
         }
@@ -376,7 +381,8 @@ contract TransactionFactory {
                 newReturnedItems[i][1],
                 newReturnedItems[i][2],
                 newReturnedItems[i][3],
-                newReturnedItems[i][4]
+                newReturnedItems[i][4],
+                newReturnedItems[i][5]
             );
             t.returnedItems[i] = returnedItems;
         }

@@ -20,9 +20,9 @@ async function getContract(){
 async function main() {
   // sample function calls below
   try {
-    // await testTransfer();
-    await testRequest();
-    await testReturn();
+    await testTransfer();
+    // await testRequest();
+    // await testReturn();
     await testReceiving();
     // await updateStatus();
     // await testGetters();
@@ -276,9 +276,9 @@ async function testReturn() {
   
   const auditTrailContract = await getContract();
     const resitems = [
-      ["id3", "item3", "typeid3","typename3", "status3"],
-      ["id2", "item2", "typeid2", "typename2", "status2"],
-      ["id", "item", "typeid","typename", "status"],
+      ["id3", "item3", "typeid3","typename3", "status3", ""],
+      ["id2", "item2", "typeid2", "typename2", "status2", ""],
+      ["id", "item", "typeid","typename", "status", ""],
     ];
     const create = await auditTrailContract.createReturningTransaction(
       "dataHash",
@@ -339,8 +339,8 @@ async function testRequest() {
   // let dataHash = hash(requestingTransaction);
 
   const resitems = [
-    ["id", "typeid", "typename", "status", "quantity"],
-    ["id2", "typeid2", "typename2", "status2", "quantity2"],
+    ["id", "typeid", "typename", "status", "", "quantity"],
+    ["id2", "typeid2", "typename2", "status2", "", "quantity2"],
   ];
 
   const create = await auditTrailContract.createRequestingTransaction(
@@ -367,8 +367,15 @@ async function testRequest() {
 
 async function updateStatus(){
   const auditTrailContract = await getContract();
-  const update = auditTrailContract.updateStatus("id3", "Returning_Transaction", 0, "newStatus");
+
+  const update = auditTrailContract.updateStatus("id2", "Requesting_Transaction", 0, "newStatus", "userId2");
   console.log(update.hash);
+  validate("id2", "dataHash", "Requesting_Transaction", ["newStatus","status2"]);
+
+  const update2 = auditTrailContract.updateStatus("id", "Returning_Transaction", 0, "newStatus", "userId2");
+  console.log(update2.hash);
+  validate("id", "dataHash", "Returning_Transaction", ["newStatus", "status2", "status"]);
+
 }
 
 
