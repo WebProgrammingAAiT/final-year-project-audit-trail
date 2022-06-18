@@ -4,14 +4,13 @@ const hash = require("object-hash");
 const { ethers } = require("hardhat");
 const contract = require("../artifacts/contracts/TransactionFactory.sol/TransactionFactory.json");
 
-
 const EventEmitter = require("events");
 
 const trails = [];
 const transactionsList = []; // store a list of transactions
 const trailsUpdate = new EventEmitter();
 
-async function getContract(){
+async function getContract() {
   const [owner, randomPerson] = await hre.ethers.getSigners();
   const auditTrailContract = new ethers.Contract(CONTRACT_ADDRESS, contract.abi, owner);
   return auditTrailContract;
@@ -26,7 +25,6 @@ async function main() {
     // await testReceiving();
     // await updateStatus();
     // await testGetters();
-
   } catch (err) {
     console.log(err);
   }
@@ -35,7 +33,7 @@ async function main() {
 async function validate(id, hash, transactionType, statuses) {
   const auditTrailContract = await getContract();
   const validate = await auditTrailContract.validateTransaction(id, hash, transactionType, statuses);
-  console.log("validate of",id,": ", validate);
+  console.log("validate of", id, ": ", validate);
 }
 
 async function testReceiving() {
@@ -137,8 +135,8 @@ async function testReceiving() {
     // let dataHash = hash(receivingTransaction);
 
     const recitems = [
-      ["id", "typeid", "typename", "quantity", "unitcost", "subsid","subsname"],
-      ["id2", "typeid2","typename2", "quantity2", "unitcost2", "subsid2", "subsname2"],
+      ["id", "typeid", "typename", "quantity", "unitcost", "subsid", "subsname"],
+      ["id2", "typeid2", "typename2", "quantity2", "unitcost2", "subsid2", "subsname2"],
     ];
     const newitems = [
       ["1", "2", "3"],
@@ -161,11 +159,10 @@ async function testReceiving() {
     console.log(receive.hash);
     await receive.wait();
 
-  const received = await auditTrailContract.getReceivingTransaction("id6");
-  console.log("RECEIVED: ", received);
+    const received = await auditTrailContract.getReceivingTransaction("id6");
+    console.log("RECEIVED: ", received);
 
     validate("id6", "dataHash", "Receiving_Transaction", []);
-
   } catch (err) {
     console.log(err);
   }
@@ -224,42 +221,41 @@ async function testTransfer() {
   const transfer = await auditTrailContract.getTransferTransaction("id5");
   console.log("TRANSFER: ", transfer);
 
-
   validate("id5", "dataHassh", "Transferring_Transaction", []);
 }
 async function testReturn() {
   // let txHash = "";
   // auditTrailContract = await getContract();
   try {
-  //   let returningTransaction = {
-  //     _id: "6283744afe37953da19d7eeb",
-  //     department: "624c33a58a6223667774a9f8",
-  //     returnedDate: "2022-04-15T11:26:45.532Z",
-  //     returnedItems: [
-  //       {
-  //         item: "62557b6345d54c7c7118bdfa",
-  //         itemType: "6252c670f5992c9b958f2ce5",
-  //         status: "pending",
-  //         _id: "6283744afe37953da19d7eeb",
-  //       },
-  //       {
-  //         item: "62557b6345d54c7c7118bdf8",
-  //         itemType: "6252c670f5992c9b958f2ce5",
-  //         status: "pending",
-  //         _id: "62852552220d16fa3598bf0a",
-  //       },
-  //     ],
-  //     receiptNumber: "862295428975720061461",
-  //     user: "627e06ab1d35ceb41ec6ba79",
-  //     type: "Returning_Transaction",
-  //     createdAt: { $date: { $numberLong: "1652782154784" } },
-  //     updatedAt: { $date: { $numberLong: "1652893010619" } },
-  //     __v: 0,
-  //   };
-  //   let id = returningTransaction._id;
-  //   let { receiptNumber, user, department, returnedDate } = returningTransaction;
-  //   let departmentId = department._id;
-  //   let departmentName = department.name;
+    //   let returningTransaction = {
+    //     _id: "6283744afe37953da19d7eeb",
+    //     department: "624c33a58a6223667774a9f8",
+    //     returnedDate: "2022-04-15T11:26:45.532Z",
+    //     returnedItems: [
+    //       {
+    //         item: "62557b6345d54c7c7118bdfa",
+    //         itemType: "6252c670f5992c9b958f2ce5",
+    //         status: "pending",
+    //         _id: "6283744afe37953da19d7eeb",
+    //       },
+    //       {
+    //         item: "62557b6345d54c7c7118bdf8",
+    //         itemType: "6252c670f5992c9b958f2ce5",
+    //         status: "pending",
+    //         _id: "62852552220d16fa3598bf0a",
+    //       },
+    //     ],
+    //     receiptNumber: "862295428975720061461",
+    //     user: "627e06ab1d35ceb41ec6ba79",
+    //     type: "Returning_Transaction",
+    //     createdAt: { $date: { $numberLong: "1652782154784" } },
+    //     updatedAt: { $date: { $numberLong: "1652893010619" } },
+    //     __v: 0,
+    //   };
+    //   let id = returningTransaction._id;
+    //   let { receiptNumber, user, department, returnedDate } = returningTransaction;
+    //   let departmentId = department._id;
+    //   let departmentName = department.name;
 
     // let itemsOfInterest = [];
     // for (let i = 0; i < returningTransaction.returnedItems.length; i++) {
@@ -269,16 +265,15 @@ async function testReturn() {
     //   let itemTypeName = itemType.name;
     //   itemsOfInterest.push([objId, item, itemTypeId, itemTypeName, status]);
     // }
-  //   console.log(itemsOfInterest);
-  //   // return;
-  //   let dataHash = hash(returningTransaction);
-   
-  
-  const auditTrailContract = await getContract();
+    //   console.log(itemsOfInterest);
+    //   // return;
+    //   let dataHash = hash(returningTransaction);
+
+    const auditTrailContract = await getContract();
     const resitems = [
-      ["id3", "item3", "typeid3","typename3", "status3", ""],
+      ["id3", "item3", "typeid3", "typename3", "status3", ""],
       ["id2", "item2", "typeid2", "typename2", "status2", ""],
-      ["id", "item", "typeid","typename", "status", ""],
+      ["id", "item", "typeid", "typename", "status", ""],
     ];
     const create = await auditTrailContract.createReturningTransaction(
       "dataHash",
@@ -295,11 +290,11 @@ async function testReturn() {
     );
     txHash = create.hash;
     console.log(create.hash);
-  const returned = await auditTrailContract.getReturningTransaction("id");
-  console.log("RETURN: ", returned);
-  validate("id", "dataHash", "Returning_Transaction", ["status3", "status2", "status"]);
+    const returned = await auditTrailContract.getReturningTransaction("id");
+    console.log("RETURN: ", returned);
+    validate("id", "dataHash", "Returning_Transaction", ["status3", "status2", "status"]);
   } catch (err) {
-    console.log("ERROR",err); // 'Failed test'
+    console.log("ERROR", err); // 'Failed test'
   }
 }
 async function testRequest() {
@@ -360,39 +355,36 @@ async function testRequest() {
 
   const request = await auditTrailContract.getRequestingTransaction("id2");
   console.log("REQUEST: ", request);
-  
-  validate("id2", "dataHash", "Requesting_Transaction", ["status","status2"]);
 
+  validate("id2", "dataHash", "Requesting_Transaction", ["status", "status2"]);
 }
 
-async function updateStatus(){
+async function updateStatus() {
   const auditTrailContract = await getContract();
 
-  const update = auditTrailContract.updateStatus("id2", "Requesting_Transaction", 0, "newStatus", "userId2");
+  const update = auditTrailContract.updateStatus("id2", "Requesting_Transaction", 0, "newStatus", "remark", "userId2");
   console.log(update.hash);
-  validate("id2", "dataHash", "Requesting_Transaction", ["newStatus","status2"]);
+  validate("id2", "dataHash", "Requesting_Transaction", ["newStatus", "status2"]);
 
-  const update2 = auditTrailContract.updateStatus("id", "Returning_Transaction", 0, "newStatus", "userId2");
+  const update2 = auditTrailContract.updateStatus("id", "Returning_Transaction", 0, "newStatus", "", "userId2");
   console.log(update2.hash);
   validate("id", "dataHash", "Returning_Transaction", ["newStatus", "status2", "status"]);
-
 }
-
 
 async function testGetters() {
   const auditTrailContract = await getContract();
 
-  // const received = await auditTrailContract.getReceivingTransaction("id6");
+  // const received = await auditTrailContract.getReceivingTransaction("62ae38367b2f802ca40c752a");
   // console.log("RECEIVED: ", received);
 
-  // const transfer = await auditTrailContract.getTransferTransaction("id5");
+  // const transfer = await auditTrailContract.getTransferTransaction("62ae2c99aab85734ec7d5415");
   // console.log("TRANSFER: ", transfer);
 
-  // const returned = await auditTrailContract.getReturningTransaction("id3");
-  // console.log("RETURNED: ", returned.returnedItems.length);
+  const returned = await auditTrailContract.getReturningTransaction("62ae3ce77a2bbfe9cc6752bf");
+  console.log("RETURNED: ", returned);
 
-  // const request = await auditTrailContract.getRequestingTransaction("id2");
-  // console.log("REQUEST: ", request.requestedItems.length);
+  // const request = await auditTrailContract.getRequestingTransaction("62ae3b5b972aa59271df317b");
+  // console.log("REQUEST: ", request);
 }
 async function getReceivingTransaction() {
   const auditTrailContract = await getContract();
@@ -454,7 +446,9 @@ async function getReturningTransaction(_id) {
   console.log(transaction);
   return transaction;
 }
-main();
+
+testGetters();
+// main();
 // testReceiving();
 // getReceivingTransaction();
 // testRequest();

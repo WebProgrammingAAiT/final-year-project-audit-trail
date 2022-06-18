@@ -19,7 +19,6 @@ contract TransactionFactory {
         string user;
         string transactionType;
         ReceivedItems[] receivedItems;
-
         string createdAt;
         string updatedAt;
     }
@@ -43,7 +42,6 @@ contract TransactionFactory {
         string user;
         string transactionType;
         TransferredItems transferredItems;
-        
         string createdAt;
         string updatedAt;
     }
@@ -63,7 +61,6 @@ contract TransactionFactory {
         string user;
         string transactionType;
         RequestedItems[] requestedItems;
-        
         string createdAt;
         string updatedAt;
     }
@@ -73,10 +70,10 @@ contract TransactionFactory {
         string itemTypeName;
         string status;
         string resolvedBy;
-        string remarks;
+        string remark;
         string quantity;
     }
-    
+
     struct ReturningTransaction {
         string id;
         string departmentId;
@@ -86,7 +83,6 @@ contract TransactionFactory {
         string user;
         string transactionType;
         ReturnedItems[] returnedItems;
-        
         string createdAt;
         string updatedAt;
     }
@@ -97,7 +93,6 @@ contract TransactionFactory {
         string itemTypeName;
         string status;
         string resolvedBy;
-
     }
 
     mapping(string => TransferringTransaction) _transferring;
@@ -145,17 +140,36 @@ contract TransactionFactory {
         if (_dataHashes[transactionIdentifier] == 0) {
             return "missing";
         } else if (_dataHashes[transactionIdentifier] == dataHash) {
-            if ((keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Requesting_Transaction"))) || (keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Returning_Transaction")))){
-                for (uint i = 0; i<statuses.length; i++){
-                    if (keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Requesting_Transaction"))) {
-                        bytes32 oldStatus = stringToBytes32(_requesting[transactionIdentifier].requestedItems[i].status);
+            if (
+                (keccak256(abi.encodePacked(transactionType)) ==
+                    keccak256(abi.encodePacked("Requesting_Transaction"))) ||
+                (keccak256(abi.encodePacked(transactionType)) ==
+                    keccak256(abi.encodePacked("Returning_Transaction")))
+            ) {
+                for (uint256 i = 0; i < statuses.length; i++) {
+                    if (
+                        keccak256(abi.encodePacked(transactionType)) ==
+                        keccak256(abi.encodePacked("Requesting_Transaction"))
+                    ) {
+                        bytes32 oldStatus = stringToBytes32(
+                            _requesting[transactionIdentifier]
+                                .requestedItems[i]
+                                .status
+                        );
                         bytes32 newStatus = stringToBytes32(statuses[i]);
                         if (oldStatus != newStatus) {
                             return "invalid status";
                         }
-                    }else if (keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Returning_Transaction"))) {
+                    } else if (
+                        keccak256(abi.encodePacked(transactionType)) ==
+                        keccak256(abi.encodePacked("Returning_Transaction"))
+                    ) {
                         // return string(abi.encodePacked(_returning[transactionIdentifier].returnedItems[i].status, statuses[i]));
-                        bytes32 oldStatus = stringToBytes32(_returning[transactionIdentifier].returnedItems[i].status);
+                        bytes32 oldStatus = stringToBytes32(
+                            _returning[transactionIdentifier]
+                                .returnedItems[i]
+                                .status
+                        );
                         bytes32 newStatus = stringToBytes32(statuses[i]);
                         if (oldStatus != newStatus) {
                             return "invalid status";
@@ -165,7 +179,7 @@ contract TransactionFactory {
                 return "valid";
             } else {
                 return "valid";
-            } 
+            }
         }
         return "invalid";
     }
@@ -197,14 +211,31 @@ contract TransactionFactory {
         u.timestamp = timestamp;
     }
 
-    function updateStatus(string memory id, string memory transactionType, uint index, string memory status, string memory resolvedBy) public {
-        if (keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Requesting_Transaction"))) {
+    function updateStatus(
+        string memory id,
+        string memory transactionType,
+        uint256 index,
+        string memory status,
+        string memory remark,
+        string memory resolvedBy,
+        string memory updatedAt
+    ) public {
+        if (
+            keccak256(abi.encodePacked(transactionType)) ==
+            keccak256(abi.encodePacked("Requesting_Transaction"))
+        ) {
             _requesting[id].requestedItems[index].status = status;
+            _requesting[id].requestedItems[index].remark = remark;
             _requesting[id].requestedItems[index].resolvedBy = resolvedBy;
-        }else if (keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Returning_Transaction"))) {
+            _requesting[id].updatedAt = updatedAt;
+        } else if (
+            keccak256(abi.encodePacked(transactionType)) ==
+            keccak256(abi.encodePacked("Returning_Transaction"))
+        ) {
             _returning[id].returnedItems[index].status = status;
-            _returning[id].returnedItems[index].resolvedBy = resolvedBy = resolvedBy;
-        } 
+            _returning[id].returnedItems[index].resolvedBy = resolvedBy;
+            _returning[id].updatedAt = updatedAt;
+        }
     }
 
     function getUser(string memory id) public view returns (User memory user) {
@@ -224,7 +255,6 @@ contract TransactionFactory {
         string[] memory newItems,
         string memory createdAt,
         string memory updatedAt
-
     ) public txDoesntExists(id) {
         TransferredItems memory items = TransferredItems(
             transferredItems[0],
@@ -240,7 +270,7 @@ contract TransactionFactory {
             receiptNumber,
             user,
             transactionType,
-            items, 
+            items,
             createdAt,
             updatedAt
         );
@@ -264,7 +294,7 @@ contract TransactionFactory {
         string memory user,
         string memory transactionType,
         string[][] memory newReceivedItems,
-        string[][] memory newItems, 
+        string[][] memory newItems,
         string memory createdAt,
         string memory updatedAt
     ) public txDoesntExists(id) {
