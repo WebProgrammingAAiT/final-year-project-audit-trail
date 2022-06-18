@@ -13,11 +13,15 @@ contract TransactionFactory {
     }
     struct ReceivingTransaction {
         string id;
+        string isReturn;
         string source;
         string receiptNumber;
         string user;
         string transactionType;
         ReceivedItems[] receivedItems;
+
+        string createdAt;
+        string updatedAt;
     }
     struct ReceivedItems {
         string id;
@@ -39,6 +43,9 @@ contract TransactionFactory {
         string user;
         string transactionType;
         TransferredItems transferredItems;
+        
+        string createdAt;
+        string updatedAt;
     }
     struct TransferredItems {
         string itemTypeId;
@@ -55,7 +62,11 @@ contract TransactionFactory {
         string receiptNumber;
         string user;
         string transactionType;
+        string resolvedBy;
         RequestedItems[] requestedItems;
+        
+        string createdAt;
+        string updatedAt;
     }
     struct RequestedItems {
         string id;
@@ -73,7 +84,11 @@ contract TransactionFactory {
         string receiptNumber;
         string user;
         string transactionType;
+        string resolvedBy;
         ReturnedItems[] returnedItems;
+        
+        string createdAt;
+        string updatedAt;
     }
     struct ReturnedItems {
         string id;
@@ -201,7 +216,10 @@ contract TransactionFactory {
         string memory user,
         string memory transactionType,
         string[] memory transferredItems,
-        string[] memory newItems
+        string[] memory newItems,
+        string memory createdAt,
+        string memory updatedAt
+
     ) public txDoesntExists(id) {
         TransferredItems memory items = TransferredItems(
             transferredItems[0],
@@ -217,7 +235,9 @@ contract TransactionFactory {
             receiptNumber,
             user,
             transactionType,
-            items
+            items, 
+            createdAt,
+            updatedAt
         );
         auditTransaction(id, dataHash);
     }
@@ -233,19 +253,25 @@ contract TransactionFactory {
     function createReceivingTransaction(
         string memory dataHash,
         string memory id,
+        string memory isReturn,
         string memory source,
         string memory receiptNumber,
         string memory user,
         string memory transactionType,
         string[][] memory newReceivedItems,
-        string[][] memory newItems
+        string[][] memory newItems, 
+        string memory createdAt,
+        string memory updatedAt
     ) public txDoesntExists(id) {
         ReceivingTransaction storage t = receiving[id];
         t.id = id;
+        t.isReturn = isReturn;
         t.source = source;
         t.receiptNumber = receiptNumber;
         t.user = user;
         t.transactionType = transactionType;
+        t.createdAt = createdAt;
+        t.updatedAt = updatedAt;
 
         for (uint256 i = 0; i < newReceivedItems.length; i++) {
             t.receivedItems.push();
@@ -281,7 +307,9 @@ contract TransactionFactory {
         string memory receiptNumber,
         string memory user,
         string memory transactionType,
-        string[][] memory newRequestedItems
+        string[][] memory newRequestedItems,
+        string memory createdAt,
+        string memory updatedAt
     ) public txDoesntExists(id) {
         RequestingTransaction storage t = requesting[id];
         t.id = id;
@@ -291,6 +319,8 @@ contract TransactionFactory {
         t.receiptNumber = receiptNumber;
         t.user = user;
         t.transactionType = transactionType;
+        t.createdAt = createdAt;
+        t.updatedAt = updatedAt;
 
         for (uint256 i = 0; i < newRequestedItems.length; i++) {
             t.requestedItems.push();
@@ -323,7 +353,9 @@ contract TransactionFactory {
         string memory receiptNumber,
         string memory user,
         string memory transactionType,
-        string[][] memory newReturnedItems
+        string[][] memory newReturnedItems,
+        string memory createdAt,
+        string memory updatedAt
     ) public txDoesntExists(id) {
         ReturningTransaction storage t = returning[id];
         t.id = id;
@@ -333,6 +365,8 @@ contract TransactionFactory {
         t.receiptNumber = receiptNumber;
         t.user = user;
         t.transactionType = transactionType;
+        t.createdAt = createdAt;
+        t.updatedAt = updatedAt;
 
         for (uint256 i = 0; i < newReturnedItems.length; i++) {
             t.returnedItems.push();
