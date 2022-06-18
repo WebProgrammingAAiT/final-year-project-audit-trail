@@ -98,18 +98,19 @@ contract TransactionFactory {
         string status;
     }
 
-    mapping(string => TransferringTransaction) transferring;
-    mapping(string => ReceivingTransaction) receiving;
-    mapping(string => RequestingTransaction) requesting;
-    mapping(string => ReturningTransaction) returning;
+    mapping(string => TransferringTransaction) _transferring;
+    mapping(string => ReceivingTransaction) _receiving;
+    mapping(string => RequestingTransaction) _requesting;
+    mapping(string => ReturningTransaction) _returning;
 
-    mapping(string => User) users;
+    mapping(string => User) _users;
 
-    mapping(string => bytes32) public dataHashes;
-    string[] public auditedTransactions;
+    mapping(string => bytes32) public _dataHashes;
+    string[] public _auditedTransactions;
+
     modifier txDoesntExists(string memory transactionIdentifier) {
         require(
-            dataHashes[transactionIdentifier] == 0,
+            _dataHashes[transactionIdentifier] == 0,
             "A transaction can only be audited once"
         );
         _;
@@ -120,8 +121,8 @@ contract TransactionFactory {
         string memory hash
     ) public {
         bytes32 dataHash = stringToBytes32(hash);
-        dataHashes[transactionIdentifier] = dataHash;
-        auditedTransactions.push(transactionIdentifier);
+        _dataHashes[transactionIdentifier] = dataHash;
+        _auditedTransactions.push(transactionIdentifier);
     }
 
     function getAllTransactions()
@@ -129,7 +130,7 @@ contract TransactionFactory {
         view
         returns (string[] memory auditedlist)
     {
-        return auditedTransactions;
+        return _auditedTransactions;
     }
 
     function validateTransaction(
@@ -139,20 +140,20 @@ contract TransactionFactory {
         string[] memory statuses
     ) public view returns (string memory) {
         bytes32 dataHash = stringToBytes32(hash);
-        if (dataHashes[transactionIdentifier] == 0) {
+        if (_dataHashes[transactionIdentifier] == 0) {
             return "missing";
-        } else if (dataHashes[transactionIdentifier] == dataHash) {
+        } else if (_dataHashes[transactionIdentifier] == dataHash) {
             if ((keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Requesting_Transaction"))) || (keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Returning_Transaction")))){
                 for (uint i = 0; i<statuses.length; i++){
                     if (keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Requesting_Transaction"))) {
-                        bytes32 oldStatus = stringToBytes32(requesting[transactionIdentifier].requestedItems[i].status);
+                        bytes32 oldStatus = stringToBytes32(_requesting[transactionIdentifier].requestedItems[i].status);
                         bytes32 newStatus = stringToBytes32(statuses[i]);
                         if (oldStatus != newStatus) {
                             return "invalid status";
                         }
                     }else if (keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Returning_Transaction"))) {
-                        // return string(abi.encodePacked(returning[transactionIdentifier].returnedItems[i].status, statuses[i]));
-                        bytes32 oldStatus = stringToBytes32(returning[transactionIdentifier].returnedItems[i].status);
+                        // return string(abi.encodePacked(_returning[transactionIdentifier].returnedItems[i].status, statuses[i]));
+                        bytes32 oldStatus = stringToBytes32(_returning[transactionIdentifier].returnedItems[i].status);
                         bytes32 newStatus = stringToBytes32(statuses[i]);
                         if (oldStatus != newStatus) {
                             return "invalid status";
@@ -187,7 +188,7 @@ contract TransactionFactory {
         string memory createdBy,
         string memory timestamp
     ) public {
-        User storage u = users[id];
+        User storage u = _users[id];
         u.id = id;
         u.username = username;
         u.createdBy = createdBy;
@@ -196,14 +197,14 @@ contract TransactionFactory {
 
     function updateStatus(string memory id, string memory transactionType, uint index, string memory status) public {
         if (keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Requesting_Transaction"))) {
-            requesting[id].requestedItems[index].status = status;
+            _requesting[id].requestedItems[index].status = status;
         }else if (keccak256(abi.encodePacked(transactionType)) == keccak256(abi.encodePacked("Returning_Transaction"))) {
-            returning[id].returnedItems[index].status = status;
+            _returning[id].returnedItems[index].status = status;
         } 
     }
 
     function getUser(string memory id) public view returns (User memory user) {
-        user = users[id];
+        user = _users[id];
     }
 
     function createTransferringTransaction(
@@ -227,7 +228,7 @@ contract TransactionFactory {
             transferredItems[2],
             newItems
         );
-        transferring[id] = TransferringTransaction(
+        _transferring[id] = TransferringTransaction(
             id,
             requestingTransaction,
             departmentId,
@@ -247,7 +248,7 @@ contract TransactionFactory {
         view
         returns (TransferringTransaction memory transaction)
     {
-        transaction = transferring[id];
+        transaction = _transferring[id];
     }
 
     function createReceivingTransaction(
@@ -263,7 +264,7 @@ contract TransactionFactory {
         string memory createdAt,
         string memory updatedAt
     ) public txDoesntExists(id) {
-        ReceivingTransaction storage t = receiving[id];
+        ReceivingTransaction storage t = _receiving[id];
         t.id = id;
         t.isReturn = isReturn;
         t.source = source;
@@ -295,7 +296,7 @@ contract TransactionFactory {
         view
         returns (ReceivingTransaction memory transaction)
     {
-        transaction = receiving[id];
+        transaction = _receiving[id];
     }
 
     function createRequestingTransaction(
@@ -311,7 +312,7 @@ contract TransactionFactory {
         string memory createdAt,
         string memory updatedAt
     ) public txDoesntExists(id) {
-        RequestingTransaction storage t = requesting[id];
+        RequestingTransaction storage t = _requesting[id];
         t.id = id;
         t.departmentId = departmentId;
         t.departmentName = departmentName;
@@ -341,7 +342,7 @@ contract TransactionFactory {
         view
         returns (RequestingTransaction memory transaction)
     {
-        transaction = requesting[id];
+        transaction = _requesting[id];
     }
 
     function createReturningTransaction(
@@ -357,7 +358,7 @@ contract TransactionFactory {
         string memory createdAt,
         string memory updatedAt
     ) public txDoesntExists(id) {
-        ReturningTransaction storage t = returning[id];
+        ReturningTransaction storage t = _returning[id];
         t.id = id;
         t.departmentId = departmentId;
         t.departmentName = departmentName;
@@ -387,6 +388,6 @@ contract TransactionFactory {
         view
         returns (ReturningTransaction memory transaction)
     {
-        transaction = returning[id];
+        transaction = _returning[id];
     }
 }

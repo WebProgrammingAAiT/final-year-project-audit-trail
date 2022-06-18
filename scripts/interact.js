@@ -21,8 +21,8 @@ async function main() {
   // sample function calls below
   try {
     // await testTransfer();
-    // await testRequest();
-    // await testReturn();
+    await testRequest();
+    await testReturn();
     await testReceiving();
     // await updateStatus();
     // await testGetters();
@@ -145,26 +145,26 @@ async function testReceiving() {
       ["4", "5"],
     ];
 
-    // const receive = await auditTrailContract.createReceivingTransaction(
-    //   "dataHash",
-    //   "id6",
-    //   "isReturn6",
-    //   "source6",
-    //   "receiptNumber6",
-    //   "user6",
-    //   "Receiving_Transaction",
-    //   recitems,
-    //   newitems,
-    //   "createdAt",
-    //   "updatedAt"
-    // );
-    // console.log(receive.hash);
-    // await receive.wait();
+    const receive = await auditTrailContract.createReceivingTransaction(
+      "dataHash",
+      "id6",
+      "isReturn6",
+      "source6",
+      "receiptNumber6",
+      "user6",
+      "Receiving_Transaction",
+      recitems,
+      newitems,
+      "createdAt",
+      "updatedAt"
+    );
+    console.log(receive.hash);
+    await receive.wait();
 
   const received = await auditTrailContract.getReceivingTransaction("id6");
-  console.log("RECEIVED: ", received.receivedItems);
+  console.log("RECEIVED: ", received);
 
-    validate("id6", "dataaHash", "Receiving_Transaction", []);
+    validate("id6", "dataHash", "Receiving_Transaction", []);
 
   } catch (err) {
     console.log(err);
@@ -202,27 +202,27 @@ async function testTransfer() {
 
   // let dataHash = hash(transferringTransaction);
 
-  // const auditTrailContract = await getContract();
-  // const transitems = ["itemtypeid", "itemtypename", "quantity"];
-  // const newitems = ["it1", "it2"];
-  // const create = await auditTrailContract.createTransferringTransaction(
-  //   "dataHash",
-  //   "id5",
-  //   "requestingTransaction5",
-  //   "departmentId5",
-  //   "departmentName5",
-  //   "receiptNumber5",
-  //   "user5",
-  //   "Transferring_Transaction",
-  //   transitems,
-  //   newitems,
-  //   "createdAt",
-  //   "updatedAt"
-  // );
+  const auditTrailContract = await getContract();
+  const transitems = ["itemtypeid", "itemtypename", "quantity"];
+  const newitems = ["it1", "it2"];
+  const create = await auditTrailContract.createTransferringTransaction(
+    "dataHash",
+    "id5",
+    "requestingTransaction5",
+    "departmentId5",
+    "departmentName5",
+    "receiptNumber5",
+    "user5",
+    "Transferring_Transaction",
+    transitems,
+    newitems,
+    "createdAt",
+    "updatedAt"
+  );
 
-  // console.log(create.hash);
-  // const transfer = await auditTrailContract.getTransferTransaction("id5");
-  // console.log("TRANSFER: ", transfer);
+  console.log(create.hash);
+  const transfer = await auditTrailContract.getTransferTransaction("id5");
+  console.log("TRANSFER: ", transfer);
 
 
   validate("id5", "dataHassh", "Transferring_Transaction", []);
@@ -275,26 +275,26 @@ async function testReturn() {
    
   
   const auditTrailContract = await getContract();
-  //   const resitems = [
-  //     ["id3", "item3", "typeid3","typename3", "status3"],
-  //     ["id2", "item2", "typeid2", "typename2", "status2"],
-  //     ["id", "item", "typeid","typename", "status"],
-  //   ];
-  //   const create = await auditTrailContract.createReturningTransaction(
-  //     "dataHash",
-  //     "id",
-  //     "departmentId",
-  //     "departmentName",
-  //     "returnedDate",
-  //     "receiptNumber",
-  //     "user",
-  //     "Returning_Transaction",
-  //     resitems,
-  //     "createdAt",
-  //     "updatedAt"
-  //   );
-  //   txHash = create.hash;
-  //   console.log(create.hash);
+    const resitems = [
+      ["id3", "item3", "typeid3","typename3", "status3"],
+      ["id2", "item2", "typeid2", "typename2", "status2"],
+      ["id", "item", "typeid","typename", "status"],
+    ];
+    const create = await auditTrailContract.createReturningTransaction(
+      "dataHash",
+      "id",
+      "departmentId",
+      "departmentName",
+      "returnedDate",
+      "receiptNumber",
+      "user",
+      "Returning_Transaction",
+      resitems,
+      "createdAt",
+      "updatedAt"
+    );
+    txHash = create.hash;
+    console.log(create.hash);
   const returned = await auditTrailContract.getReturningTransaction("id");
   console.log("RETURN: ", returned);
   validate("id", "dataHash", "Returning_Transaction", ["status3", "status2", "status"]);
@@ -338,28 +338,28 @@ async function testRequest() {
   // }
   // let dataHash = hash(requestingTransaction);
 
-  // const resitems = [
-  //   ["id", "typeid", "typename", "status", "quantity"],
-  //   ["id2", "typeid2", "typename2", "status2", "quantity2"],
-  // ];
+  const resitems = [
+    ["id", "typeid", "typename", "status", "quantity"],
+    ["id2", "typeid2", "typename2", "status2", "quantity2"],
+  ];
 
-  // const create = await auditTrailContract.createRequestingTransaction(
-  //   "dataHash",
-  //   "id2",
-  //   "departmentId2",
-  //   "departmentName2",
-  //   "requiredDate2",
-  //   "receiptNumber2",
-  //   "user2",
-  //   "Requesting_Transaction",
-  //   resitems,
-  //   "createdAt",
-  //   "updatedBy"
-  // );
-  // console.log(create.hash);
+  const create = await auditTrailContract.createRequestingTransaction(
+    "dataHash",
+    "id2",
+    "departmentId2",
+    "departmentName2",
+    "requiredDate2",
+    "receiptNumber2",
+    "user2",
+    "Requesting_Transaction",
+    resitems,
+    "createdAt",
+    "updatedBy"
+  );
+  console.log(create.hash);
 
-  // const request = await auditTrailContract.getRequestingTransaction("id2");
-  // console.log("REQUEST: ", request);
+  const request = await auditTrailContract.getRequestingTransaction("id2");
+  console.log("REQUEST: ", request);
   
   validate("id2", "dataHash", "Requesting_Transaction", ["status","status2"]);
 
