@@ -62,7 +62,6 @@ contract TransactionFactory {
         string receiptNumber;
         string user;
         string transactionType;
-        string resolvedBy;
         RequestedItems[] requestedItems;
         
         string createdAt;
@@ -74,6 +73,7 @@ contract TransactionFactory {
         string itemTypeName;
         string status;
         string resolvedBy;
+        string remarks;
         string quantity;
     }
     
@@ -335,7 +335,8 @@ contract TransactionFactory {
                 newRequestedItems[i][2],
                 newRequestedItems[i][3],
                 newRequestedItems[i][4],
-                newRequestedItems[i][5]
+                newRequestedItems[i][5],
+                newRequestedItems[i][6]
             );
             t.requestedItems[i] = requestedItems;
         }

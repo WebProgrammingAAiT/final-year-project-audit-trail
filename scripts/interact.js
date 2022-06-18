@@ -20,10 +20,10 @@ async function getContract(){
 async function main() {
   // sample function calls below
   try {
-    await testTransfer();
-    // await testRequest();
+    // await testTransfer();
+    await testRequest();
     // await testReturn();
-    await testReceiving();
+    // await testReceiving();
     // await updateStatus();
     // await testGetters();
 
@@ -339,8 +339,8 @@ async function testRequest() {
   // let dataHash = hash(requestingTransaction);
 
   const resitems = [
-    ["id", "typeid", "typename", "status", "", "quantity"],
-    ["id2", "typeid2", "typename2", "status2", "", "quantity2"],
+    ["id", "typeid", "typename", "status", "", "remarks1", "quantity"],
+    ["id2", "typeid2", "typename2", "status2", "", "remarks1", "quantity2"],
   ];
 
   const create = await auditTrailContract.createRequestingTransaction(
