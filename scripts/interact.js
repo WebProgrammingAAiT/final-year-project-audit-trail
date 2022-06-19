@@ -374,16 +374,16 @@ async function updateStatus() {
 async function testGetters() {
   const auditTrailContract = await getContract();
 
-  // const received = await auditTrailContract.getReceivingTransaction("62ae38367b2f802ca40c752a");
+  // const received = await auditTrailContract.getReceivingTransaction("62af0dd5689ef30c72e8c653");
   // console.log("RECEIVED: ", received);
 
   // const transfer = await auditTrailContract.getTransferTransaction("62ae2c99aab85734ec7d5415");
   // console.log("TRANSFER: ", transfer);
 
-  const returned = await auditTrailContract.getReturningTransaction("62ae3ce77a2bbfe9cc6752bf");
+  const returned = await auditTrailContract.getReturningTransaction("62af53333d4aede8d215d41c");
   console.log("RETURNED: ", returned);
 
-  // const request = await auditTrailContract.getRequestingTransaction("62ae3b5b972aa59271df317b");
+  // const request = await auditTrailContract.getRequestingTransaction("62af3c015bf2ce825d2545d4");
   // console.log("REQUEST: ", request);
 }
 async function getReceivingTransaction() {
