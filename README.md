@@ -37,8 +37,8 @@ Deploy the contract by running the following commands on your terminal:
 > npx hardhat run scripts/deploy.js --network rinkeby </pre>
 
 ### References 
-1. rkalis on Audit Trail, https://github.com/rkalis/blockchain-audit-trail/blob/master/truffle/contracts/AuditTrail.sol, June 2018.
-2. CryptoZombies tutorial, https://cryptozombies.io/
-3. Etherum Stack Exchange, https://ethereum.stackexchange.com/
-4. Hardhat docs, https://hardhat.org/
-5. Ethers.js docs, https://docs.ethers.io/v5/
+[1]. rkalis on Audit Trail, https://github.com/rkalis/blockchain-audit-trail/blob/master/truffle/contracts/AuditTrail.sol, June 2018.
+[2]. CryptoZombies tutorial, https://cryptozombies.io/
+[3]. Etherum Stack Exchange, https://ethereum.stackexchange.com/
+[4]. Hardhat docs, https://hardhat.org/
+[5]. Ethers.js docs, https://docs.ethers.io/v5/
