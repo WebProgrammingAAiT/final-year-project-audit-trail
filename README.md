@@ -24,9 +24,15 @@ Auditing a system is an important part of an application that deals with transac
 - Ether.js library as Ethereum blockchain client
 
 ### Installation / Setup and running steps
+Include a _.env_ file with the following format: 
+<pre>API_URL = ""
+API_KEY = ""
+PRIVATE_KEY = ""
+CONTRACT_ADDRESS = ""</pre>
 
-Deploy the contract by running the following command on your terminal: 
-<pre>> npx hardhat
+
+Deploy the contract by running the following commands on your terminal: 
+<pre>> npm install
 > npx hardhat compile
 > npx hardhat run scripts/deploy.js --network rinkeby </pre>
 
