@@ -5,7 +5,7 @@ Next Generation Univeristy ERP System (Property Administration System)
 <br>
 ### Prepared By
 - Abdulhamid Mussa  ATR/3656/10
-- Bemnet Teklu      ATR/3381/10
+- Bemnet Teklu Assefa     ATR/3381/10
 - Lensa Billion     ATR/0852/10
 - Mahlet Dereje     ATR/1931/10
 - Nebyu Tsegaye     ATR/2127/10
